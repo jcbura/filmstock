@@ -13,6 +13,7 @@ export const DragAndDrop = ({
   onFileSelected: (file: File) => void;
 }) => {
   const [dropActive, setDropActive] = useState(false);
+  const dragDepthRef = useRef(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isSupported = (file: File) => ACCEPT_MIME.includes(file.type);
@@ -83,21 +84,26 @@ export const DragAndDrop = ({
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    dragDepthRef.current = 0;
     setDropActive(false);
     if (!e.dataTransfer?.files?.length) return;
     handleFile(e.dataTransfer.files);
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragEnter = (e: React.DragEvent) => {
     e.preventDefault();
+    dragDepthRef.current += 1;
     setDropActive(true);
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
   const handleDragLeave = (e: React.DragEvent) => {
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    const x = e.clientX;
-    const y = e.clientY;
-    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+    e.preventDefault();
+    dragDepthRef.current -= 1;
+    if (dragDepthRef.current === 0) {
       setDropActive(false);
     }
   };
@@ -125,6 +131,7 @@ export const DragAndDrop = ({
     <div
       className="flex h-full w-full flex-col items-center justify-center p-4 transition-colors"
       onDrop={handleDrop}
+      onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
     >
