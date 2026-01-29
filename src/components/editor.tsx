@@ -105,19 +105,36 @@ export const Editor = ({
     setIsDragging(false);
   }, []);
 
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setFile(null);
+      }
+    },
+    [setFile],
+  );
+
   useEffect(() => {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
     window.addEventListener('touchmove', handleTouchMove, { passive: false });
     window.addEventListener('touchend', handleTouchEnd);
+    window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
+  }, [
+    handleMouseMove,
+    handleMouseUp,
+    handleTouchMove,
+    handleTouchEnd,
+    handleKeyDown,
+  ]);
 
   return (
     <div className="bg-background relative h-full w-full">
