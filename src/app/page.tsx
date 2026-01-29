@@ -1,13 +1,106 @@
-import { Button, Kbd, P } from '@/components';
-import { ImageIcon, XIcon } from '@phosphor-icons/react/dist/ssr';
-import { Metadata } from 'next';
-import Image from 'next/image';
+'use client';
 
-export const metadata: Metadata = {
-  title: 'Home',
+import { Button, Kbd, P } from '@/components';
+import { cn } from '@/utils';
+import { CaretUpDownIcon, ImageIcon, XIcon } from '@phosphor-icons/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+const CanvasImage = ({ grayscale = false }: { grayscale?: boolean }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const img = new window.Image();
+    img.src = '/test.jpeg';
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(img, 0, 0);
+      }
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className={cn(
+        grayscale && 'grayscale',
+        'max-h-[calc(100vh-10rem)] max-w-[calc(100vw-4rem)] object-contain select-none sm:max-w-full',
+      )}
+    />
+  );
 };
 
 const Home = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [sliderPosition, setSliderPosition] = useState(50);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleSliderDrag = (clientX: number) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+    setSliderPosition(percentage);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    handleSliderDrag(e.clientX);
+  };
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging) return;
+      handleSliderDrag(e.clientX);
+    },
+    [isDragging],
+  );
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsDragging(true);
+    if (e.touches.length > 0) {
+      handleSliderDrag(e.touches[0].clientX);
+    }
+  };
+
+  const handleTouchMove = useCallback(
+    (e: TouchEvent) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      if (e.touches.length > 0) {
+        handleSliderDrag(e.touches[0].clientX);
+      }
+    },
+    [isDragging],
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
+
   return (
     <>
       {false ? (
@@ -41,31 +134,26 @@ const Home = () => {
             <XIcon />
           </Button>
           <div className="relative flex h-full w-full items-center justify-center overflow-hidden p-4 sm:p-8">
-            <div className="relative cursor-ew-resize touch-none">
-              <Image
-                src="/test.jpeg"
-                width={4096}
-                height={2760}
-                alt=""
-                className="max-h-[calc(100vh-10rem)] max-w-[calc(100vw-4rem)] object-contain select-none"
-              />
-              <div className="absolute inset-0 overflow-hidden">
-                {/* add clip path to above div */}
-                <Image
-                  src="/test.jpeg"
-                  width={4096}
-                  height={2760}
-                  alt=""
-                  className="max-h-[calc(100vh-10rem)] max-w-[calc(100vw-4rem)] object-contain grayscale select-none"
-                />
+            <div
+              ref={containerRef}
+              className="relative cursor-ew-resize touch-none"
+              onMouseDown={handleMouseDown}
+              onTouchStart={handleTouchStart}
+            >
+              <CanvasImage grayscale />
+              <div
+                className="absolute inset-0 overflow-hidden"
+                style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
+              >
+                <CanvasImage />
               </div>
-              <div className="absolute inset-y-0 cursor-ew-resize select-none">
-                {/* add style for positioning horizontally */}
+              <div
+                style={{ left: `${sliderPosition}%` }}
+                className="absolute inset-y-0 cursor-ew-resize select-none"
+              >
                 <div className="bg-primary h-full w-px" />
-                <div className="bg-primary absolute top-1/2 -translate-x-1/2 -translate-y-1/2 rounded px-2 py-0.5">
-                  <P variant="sm" className="text-primary-foreground">
-                    50%
-                  </P>
+                <div className="bg-primary absolute top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded px-2 py-0.5">
+                  <CaretUpDownIcon className="text-primary-foreground rotate-90" />
                 </div>
               </div>
             </div>
