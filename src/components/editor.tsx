@@ -1,30 +1,40 @@
 'use client';
 
 import { Button } from '@/components';
+import { FilmWebGL } from '@/utils';
 import { CaretUpDownIcon, XIcon } from '@phosphor-icons/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const CanvasImage = ({ file }: { file: File }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rendererRef = useRef<FilmWebGL | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const imageUrl = URL.createObjectURL(file);
-
     const img = new window.Image();
-    img.src = imageUrl;
+
     img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(img, 0, 0);
+      if (!rendererRef.current) {
+        rendererRef.current = new FilmWebGL(canvas);
       }
+
+      rendererRef.current.loadImage(img);
+      rendererRef.current.setFilmStock('cinestill-800t');
+      rendererRef.current.render();
+
+      URL.revokeObjectURL(imageUrl);
     };
 
+    img.src = imageUrl;
+
     return () => {
+      if (rendererRef.current) {
+        rendererRef.current.dispose();
+        rendererRef.current = null;
+      }
       URL.revokeObjectURL(imageUrl);
     };
   }, [file]);
@@ -32,7 +42,7 @@ const CanvasImage = ({ file }: { file: File }) => {
   return (
     <canvas
       ref={canvasRef}
-      className="max-h-[calc(100vh-10rem)] max-w-[calc(100vw-4rem)] object-contain invert select-none sm:max-w-full"
+      className="max-h-[calc(100vh-10rem)] max-w-[calc(100vw-4rem)] object-contain select-none sm:max-w-full"
     />
   );
 };
