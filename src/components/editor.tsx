@@ -1,17 +1,10 @@
 'use client';
 
 import { Button } from '@/components';
-import { cn } from '@/utils';
 import { CaretUpDownIcon, XIcon } from '@phosphor-icons/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-const CanvasImage = ({
-  file,
-  grayscale = false,
-}: {
-  file: File;
-  grayscale?: boolean;
-}) => {
+const CanvasImage = ({ file }: { file: File }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -34,15 +27,12 @@ const CanvasImage = ({
     return () => {
       URL.revokeObjectURL(imageUrl);
     };
-  }, [file, grayscale]);
+  }, [file]);
 
   return (
     <canvas
       ref={canvasRef}
-      className={cn(
-        grayscale && 'grayscale',
-        'max-h-[calc(100vh-10rem)] max-w-[calc(100vw-4rem)] object-contain select-none sm:max-w-full',
-      )}
+      className="max-h-[calc(100vh-10rem)] max-w-[calc(100vw-4rem)] object-contain invert select-none sm:max-w-full"
     />
   );
 };
@@ -57,6 +47,8 @@ export const Editor = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [sliderPosition, setSliderPosition] = useState<number>(50);
   const [isDragging, setIsDragging] = useState<boolean>(false);
+
+  const imageUrl = useMemo(() => URL.createObjectURL(file), [file]);
 
   const handleSliderDrag = (clientX: number) => {
     if (!containerRef.current) return;
@@ -147,32 +139,39 @@ export const Editor = ({
         <XIcon />
       </Button>
       <div className="relative flex h-full w-full items-center justify-center overflow-hidden p-4 sm:p-8">
-        <div
-          ref={containerRef}
-          className="relative cursor-ew-resize touch-none"
-          onMouseDown={handleMouseDown}
-          onTouchStart={handleTouchStart}
-        >
-          <CanvasImage file={file} />
+        {imageUrl && (
           <div
-            className="absolute inset-0 overflow-hidden"
-            style={{ clipPath: `inset(0 0 0 ${sliderPosition}%)` }}
+            ref={containerRef}
+            className="relative cursor-ew-resize touch-none"
+            onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStart}
           >
-            <CanvasImage file={file} grayscale />
-          </div>
-          <div
-            style={{ left: `${sliderPosition}%` }}
-            className="absolute inset-y-0 cursor-ew-resize select-none"
-          >
-            <div className="bg-primary h-full w-px" />
-            <div className="bg-primary absolute top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded px-2 py-0.5">
-              <CaretUpDownIcon
-                weight="fill"
-                className="text-primary-foreground rotate-90"
-              />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={imageUrl}
+              alt="original"
+              className="max-h-[calc(100vh-10rem)] max-w-[calc(100vw-4rem)] object-contain select-none sm:max-w-full"
+            />
+            <div
+              className="absolute inset-0 overflow-hidden"
+              style={{ clipPath: `inset(0 0 0 ${sliderPosition}%)` }}
+            >
+              <CanvasImage file={file} />
+            </div>
+            <div
+              style={{ left: `${sliderPosition}%` }}
+              className="absolute inset-y-0 cursor-ew-resize select-none"
+            >
+              <div className="bg-primary h-full w-px" />
+              <div className="bg-primary absolute top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded px-2 py-0.5">
+                <CaretUpDownIcon
+                  weight="fill"
+                  className="text-primary-foreground rotate-90"
+                />
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
