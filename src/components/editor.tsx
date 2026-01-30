@@ -140,8 +140,8 @@ export const Editor = ({
     <div className="bg-background relative h-full w-full">
       <Button
         variant="ghost"
-        size="icon"
-        className="absolute top-2 right-2 z-10 sm:top-4 sm:right-4"
+        size="icon-sm"
+        className="absolute top-2 right-2 z-10 rounded-full sm:top-4 sm:right-4"
         onClick={() => setFile(null)}
       >
         <XIcon />
@@ -153,12 +153,12 @@ export const Editor = ({
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
         >
-          <CanvasImage file={file} grayscale />
+          <CanvasImage file={file} />
           <div
             className="absolute inset-0 overflow-hidden"
-            style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
+            style={{ clipPath: `inset(0 0 0 ${sliderPosition}%)` }}
           >
-            <CanvasImage file={file} />
+            <CanvasImage file={file} grayscale />
           </div>
           <div
             style={{ left: `${sliderPosition}%` }}
@@ -166,7 +166,10 @@ export const Editor = ({
           >
             <div className="bg-primary h-full w-px" />
             <div className="bg-primary absolute top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded px-2 py-0.5">
-              <CaretUpDownIcon className="text-primary-foreground rotate-90" />
+              <CaretUpDownIcon
+                weight="fill"
+                className="text-primary-foreground rotate-90"
+              />
             </div>
           </div>
         </div>

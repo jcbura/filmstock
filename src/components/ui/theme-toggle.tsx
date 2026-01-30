@@ -14,7 +14,7 @@ export const ThemeToggle = () => {
   return (
     <Tooltip delayDuration={700}>
       <TooltipTrigger asChild>
-        <Button variant="ghost" size="icon" onClick={toggleTheme}>
+        <Button variant="ghost" size="icon-sm" onClick={toggleTheme}>
           <SunHorizonIcon />
         </Button>
       </TooltipTrigger>

@@ -1,22 +1,18 @@
 'use client';
 
 import { Button, Kbd, P } from '@/components';
-import { cn } from '@/utils';
+import { ACCEPT_MIME, cn, isSupportedMime } from '@/utils';
 import { ImageIcon } from '@phosphor-icons/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-
-const ACCEPT_MIME = ['image/png', 'image/jpg', 'image/jpeg'];
 
 export const DragAndDrop = ({
   onFileSelected,
 }: {
   onFileSelected: (file: File) => void;
 }) => {
-  const [dropActive, setDropActive] = useState(false);
-  const dragDepthRef = useRef(0);
+  const [dropActive, setDropActive] = useState<boolean>(false);
+  const dragDepthRef = useRef<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const isSupported = (file: File) => ACCEPT_MIME.includes(file.type);
 
   const triggerFilePicker = useCallback(() => {
     fileInputRef.current?.click();
@@ -24,7 +20,7 @@ export const DragAndDrop = ({
 
   const handleFile = useCallback(
     (fileList: FileList | File[]) => {
-      const files = Array.from(fileList).filter(isSupported);
+      const files = Array.from(fileList).filter(file => isSupportedMime(file));
       if (files.length > 0) {
         onFileSelected(files[0]);
       }
@@ -50,7 +46,7 @@ export const DragAndDrop = ({
       for (const item of clipboardData.items) {
         if (item.kind === 'file') {
           const file = item.getAsFile();
-          if (file && ACCEPT_MIME.includes(file.type)) {
+          if (file && isSupportedMime(file)) {
             files.push(file);
           }
         }
@@ -161,7 +157,7 @@ export const DragAndDrop = ({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/png,image/jpeg"
+        accept={ACCEPT_MIME.join(',')}
         className="hidden"
         onChange={handleFileInputChange}
       />
