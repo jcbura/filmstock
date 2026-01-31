@@ -1,13 +1,8 @@
 'use client';
 
-import { Button, ThemeToggle } from '@/components';
+import { Button } from '@/components';
 import { applyFilmShader } from '@/utils';
-import {
-  CaretUpDownIcon,
-  DownloadSimpleIcon,
-  ListIcon,
-  XIcon,
-} from '@phosphor-icons/react';
+import { CaretUpDownIcon, XIcon } from '@phosphor-icons/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const CanvasImage = ({ file }: { file: File }) => {
@@ -137,26 +132,15 @@ export const Editor = ({
 
   return (
     <div className="bg-background relative h-full w-full">
-      <div className="bg-primary/5 absolute top-2 right-2 z-10 flex flex-col gap-1.5 rounded-full p-1.5 backdrop-blur-xs sm:top-4 sm:right-4">
-        <Button
-          variant="outline"
-          size="icon-sm"
-          className="rounded-full"
-          onClick={() => setFile(null)}
-        >
-          <span className="sr-only">Close</span>
-          <XIcon />
-        </Button>
-        <Button variant="outline" size="icon-sm" className="rounded-full">
-          <span className="sr-only">Menu</span>
-          <ListIcon />
-        </Button>
-        <Button variant="outline" size="icon-sm" className="rounded-full">
-          <span className="sr-only">Download</span>
-          <DownloadSimpleIcon />
-        </Button>
-        <ThemeToggle />
-      </div>
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        className="absolute top-2 right-2 z-10 sm:top-4 sm:right-4"
+        onClick={() => setFile(null)}
+      >
+        <span className="sr-only">Close</span>
+        <XIcon />
+      </Button>
       <div className="relative flex h-full w-full items-center justify-center overflow-hidden p-4 sm:p-8">
         {imageUrl && (
           <div

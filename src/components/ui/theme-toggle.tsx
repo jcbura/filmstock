@@ -12,12 +12,7 @@ export const ThemeToggle = () => {
   };
 
   return (
-    <Button
-      variant="outline"
-      size="icon-sm"
-      className="rounded-full"
-      onClick={toggleTheme}
-    >
+    <Button variant="ghost" size="icon-sm" onClick={toggleTheme}>
       <span className="sr-only">Toggle Theme</span>
       <SunHorizonIcon />
     </Button>
