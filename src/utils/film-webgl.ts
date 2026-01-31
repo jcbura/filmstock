@@ -9,6 +9,7 @@ export function applyFilmShader(
   grainIntensity: number = 0.1,
   warmth: number = 0.5,
   contrast: number = 0.0,
+  vignette: number = 0.0,
 ): void {
   const gl = canvas.getContext('webgl');
   if (!gl) {
@@ -28,7 +29,7 @@ export function applyFilmShader(
     }
   `;
 
-  // Fragment shader - adds film grain, color shift, and contrast curve
+  // Fragment shader - film grain, color shift, contrast curve, and vignette
   const fragmentShaderSource = `
     precision mediump float;
     varying vec2 v_texCoord;
@@ -37,6 +38,7 @@ export function applyFilmShader(
     uniform float u_grainIntensity;
     uniform float u_warmth;
     uniform float u_contrast;
+    uniform float u_vignette;
     
     // Simple pseudo-random function for grain
     float random(vec2 co) {
@@ -68,6 +70,19 @@ export function applyFilmShader(
       color.r *= 1.0 + warmthShift;
       color.g *= 1.0 + warmthShift * 0.5;
       color.b *= 1.0 - warmthShift;
+      
+      // Apply vignette (darkening at edges)
+      if (u_vignette > 0.0) {
+        // Calculate distance from center
+        vec2 center = vec2(0.5, 0.5);
+        float dist = distance(v_texCoord, center);
+        
+        // Create smooth falloff from center to edges
+        float vignetteFactor = smoothstep(0.8, 0.3, dist);
+        vignetteFactor = mix(1.0, vignetteFactor, u_vignette);
+        
+        color.rgb *= vignetteFactor;
+      }
       
       // Add grain with dynamic intensity
       float grain = random(v_texCoord * u_time) * u_grainIntensity;
@@ -144,6 +159,9 @@ export function applyFilmShader(
 
   const contrastLocation = gl.getUniformLocation(program, 'u_contrast');
   gl.uniform1f(contrastLocation, contrast);
+
+  const vignetteLocation = gl.getUniformLocation(program, 'u_vignette');
+  gl.uniform1f(vignetteLocation, vignette);
 
   // Draw
   gl.viewport(0, 0, canvas.width, canvas.height);
