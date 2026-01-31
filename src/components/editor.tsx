@@ -22,7 +22,7 @@ const CanvasImage = ({ file }: { file: File }) => {
       }
 
       rendererRef.current.loadImage(img);
-      rendererRef.current.setFilmStock('cinestill-800t');
+      rendererRef.current.setFilmStock('kodak-gold-200');
       rendererRef.current.render();
 
       URL.revokeObjectURL(imageUrl);

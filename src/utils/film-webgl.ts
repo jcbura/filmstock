@@ -36,13 +36,13 @@ interface FilmCharacteristics {
 const FILM_CHARACTERISTICS: Record<FilmStock, FilmCharacteristics> = {
   'kodak-gold-200': {
     name: 'Kodak Gold 200',
-    grain: 0.15,
+    grain: 0.16,
     contrast: 1.08,
-    saturation: 1.15,
-    warmth: 0.12,
-    highlights: 0.95,
-    shadows: 1.05,
-    redCurve: [1.08, 0.98, 1.02],
+    saturation: 1.18,
+    warmth: 0.15,
+    highlights: 0.93,
+    shadows: 1.06,
+    redCurve: [1.12, 0.97, 1.03],
     greenCurve: [0.95, 1.0, 0.98],
     blueCurve: [0.88, 0.92, 0.95],
     halation: 0.0,
@@ -51,128 +51,83 @@ const FILM_CHARACTERISTICS: Record<FilmStock, FilmCharacteristics> = {
   },
   'kodak-ultramax-400': {
     name: 'Kodak Ultramax 400',
-    grain: 0.22,
-    contrast: 1.12,
-    saturation: 1.25,
-    warmth: 0.08,
-    highlights: 0.92,
-    shadows: 1.08,
-    redCurve: [1.1, 1.02, 1.05],
+    grain: 0.24,
+    contrast: 1.15,
+    saturation: 1.22,
+    warmth: 0.05,
+    highlights: 0.88,
+    shadows: 1.12,
+    redCurve: [1.18, 1.0, 1.06],
     greenCurve: [0.98, 1.05, 1.0],
-    blueCurve: [0.9, 0.95, 0.98],
+    blueCurve: [0.92, 0.97, 1.02],
     halation: 0.0,
     blackAndWhite: false,
-    grainSize: 1.5,
+    grainSize: 1.6,
   },
   'kodak-portra-400': {
     name: 'Kodak Portra 400',
-    grain: 0.12,
-    contrast: 1.05,
-    saturation: 1.08,
-    warmth: 0.05,
-    highlights: 0.98,
-    shadows: 1.02,
-    redCurve: [1.02, 1.0, 1.01],
-    greenCurve: [0.98, 1.0, 0.99],
-    blueCurve: [0.96, 0.98, 0.99],
-    halation: 0.0,
-    blackAndWhite: false,
-    grainSize: 1.0,
-  },
-  'fujifilm-superia-400': {
-    name: 'Fujifilm Superia 400',
-    grain: 0.2,
-    contrast: 1.1,
-    saturation: 1.18,
-    warmth: -0.05,
-    highlights: 0.93,
-    shadows: 1.06,
-    redCurve: [1.05, 1.0, 1.02],
-    greenCurve: [0.95, 1.08, 1.02],
-    blueCurve: [0.92, 1.05, 1.08],
-    halation: 0.0,
-    blackAndWhite: false,
-    grainSize: 1.4,
-  },
-  'fujifilm-velvia-50': {
-    name: 'Fujifilm Velvia 50',
-    grain: 0.08,
-    contrast: 1.25,
-    saturation: 1.45,
-    warmth: 0.02,
-    highlights: 0.88,
-    shadows: 1.15,
-    redCurve: [1.15, 1.08, 1.1],
-    greenCurve: [0.95, 1.12, 1.08],
-    blueCurve: [0.88, 1.05, 1.15],
-    halation: 0.0,
-    blackAndWhite: false,
-    grainSize: 0.8,
-  },
-  'fujifilm-provia-100f': {
-    name: 'Fujifilm Provia 100F',
     grain: 0.1,
-    contrast: 1.08,
-    saturation: 1.12,
-    warmth: 0.0,
+    contrast: 1.04,
+    saturation: 1.06,
+    warmth: 0.03,
     highlights: 0.96,
-    shadows: 1.04,
-    redCurve: [1.0, 1.0, 1.0],
-    greenCurve: [1.0, 1.0, 1.0],
-    blueCurve: [1.0, 1.0, 1.0],
+    shadows: 1.01,
+    redCurve: [1.01, 1.0, 1.005],
+    greenCurve: [0.99, 1.0, 0.995],
+    blueCurve: [0.97, 0.99, 0.995],
     halation: 0.0,
     blackAndWhite: false,
     grainSize: 0.9,
   },
+  'fujifilm-superia-400': {
+    name: 'Fujifilm Superia 400',
+    grain: 0.22,
+    contrast: 1.1,
+    saturation: 1.14,
+    warmth: -0.08,
+    highlights: 0.94,
+    shadows: 1.08,
+    redCurve: [1.03, 0.98, 1.01],
+    greenCurve: [0.93, 1.12, 1.04],
+    blueCurve: [0.92, 1.05, 1.08],
+    halation: 0.0,
+    blackAndWhite: false,
+    grainSize: 1.5,
+  },
+  'fujifilm-velvia-50': {
+    name: 'Fujifilm Velvia 50',
+    grain: 0.06,
+    contrast: 1.28,
+    saturation: 1.4,
+    warmth: -0.02,
+    highlights: 0.86,
+    shadows: 1.18,
+    redCurve: [1.18, 1.1, 1.12],
+    greenCurve: [0.92, 1.15, 1.1],
+    blueCurve: [0.85, 1.08, 1.18],
+    halation: 0.0,
+    blackAndWhite: false,
+    grainSize: 0.7,
+  },
+  'fujifilm-provia-100f': {
+    name: 'Fujifilm Provia 100F',
+    grain: 0.09,
+    contrast: 1.08,
+    saturation: 1.1,
+    warmth: -0.03,
+    highlights: 0.94,
+    shadows: 1.03,
+    redCurve: [1.0, 1.0, 1.0],
+    greenCurve: [1.0, 1.0, 1.0],
+    blueCurve: [1.0, 1.0, 1.0],
+    halation: 0.0,
+    blackAndWhite: false,
+    grainSize: 0.85,
+  },
   'ilford-hp5-plus-400': {
     name: 'Ilford HP5 Plus 400',
-    grain: 0.28,
-    contrast: 1.15,
-    saturation: 0.0,
-    warmth: 0.0,
-    highlights: 0.9,
-    shadows: 1.12,
-    redCurve: [1.0, 1.0, 1.0],
-    greenCurve: [1.0, 1.0, 1.0],
-    blueCurve: [1.0, 1.0, 1.0],
-    halation: 0.0,
-    blackAndWhite: true,
-    grainSize: 1.6,
-  },
-  'kodak-tri-x-400': {
-    name: 'Kodak Tri-X 400',
-    grain: 0.32,
-    contrast: 1.22,
-    saturation: 0.0,
-    warmth: 0.0,
-    highlights: 0.88,
-    shadows: 1.18,
-    redCurve: [1.0, 1.0, 1.0],
-    greenCurve: [1.0, 1.0, 1.0],
-    blueCurve: [1.0, 1.0, 1.0],
-    halation: 0.0,
-    blackAndWhite: true,
-    grainSize: 1.8,
-  },
-  'ilford-fp4-plus-125': {
-    name: 'Ilford FP4 Plus 125',
-    grain: 0.18,
+    grain: 0.3,
     contrast: 1.12,
-    saturation: 0.0,
-    warmth: 0.0,
-    highlights: 0.93,
-    shadows: 1.08,
-    redCurve: [1.0, 1.0, 1.0],
-    greenCurve: [1.0, 1.0, 1.0],
-    blueCurve: [1.0, 1.0, 1.0],
-    halation: 0.0,
-    blackAndWhite: true,
-    grainSize: 1.2,
-  },
-  'kodak-t-max-100': {
-    name: 'Kodak T-Max 100',
-    grain: 0.12,
-    contrast: 1.18,
     saturation: 0.0,
     warmth: 0.0,
     highlights: 0.92,
@@ -182,22 +137,67 @@ const FILM_CHARACTERISTICS: Record<FilmStock, FilmCharacteristics> = {
     blueCurve: [1.0, 1.0, 1.0],
     halation: 0.0,
     blackAndWhite: true,
-    grainSize: 0.9,
+    grainSize: 1.7,
+  },
+  'kodak-tri-x-400': {
+    name: 'Kodak Tri-X 400',
+    grain: 0.38,
+    contrast: 1.25,
+    saturation: 0.0,
+    warmth: 0.0,
+    highlights: 0.87,
+    shadows: 1.2,
+    redCurve: [1.0, 1.0, 1.0],
+    greenCurve: [1.0, 1.0, 1.0],
+    blueCurve: [1.0, 1.0, 1.0],
+    halation: 0.0,
+    blackAndWhite: true,
+    grainSize: 1.9,
+  },
+  'ilford-fp4-plus-125': {
+    name: 'Ilford FP4 Plus 125',
+    grain: 0.2,
+    contrast: 1.1,
+    saturation: 0.0,
+    warmth: 0.0,
+    highlights: 0.95,
+    shadows: 1.06,
+    redCurve: [1.0, 1.0, 1.0],
+    greenCurve: [1.0, 1.0, 1.0],
+    blueCurve: [1.0, 1.0, 1.0],
+    halation: 0.0,
+    blackAndWhite: true,
+    grainSize: 1.1,
+  },
+  'kodak-t-max-100': {
+    name: 'Kodak T-Max 100',
+    grain: 0.12,
+    contrast: 1.15,
+    saturation: 0.0,
+    warmth: 0.0,
+    highlights: 0.94,
+    shadows: 1.08,
+    redCurve: [1.0, 1.0, 1.0],
+    greenCurve: [1.0, 1.0, 1.0],
+    blueCurve: [1.0, 1.0, 1.0],
+    halation: 0.0,
+    blackAndWhite: true,
+    grainSize: 0.75,
   },
   'cinestill-800t': {
     name: 'CineStill 800T',
-    grain: 0.25,
-    contrast: 1.08,
-    saturation: 1.15,
-    warmth: 0.15,
-    highlights: 0.85,
-    shadows: 1.05,
-    redCurve: [1.12, 1.05, 1.08],
+    grain: 0.26,
+    contrast: 1.12,
+    saturation: 1.18,
+    warmth: 0.12,
+    highlights: 0.8,
+    shadows: 1.08,
+    redCurve: [1.15, 1.06, 1.1],
     greenCurve: [0.95, 1.0, 0.98],
-    blueCurve: [0.85, 0.88, 0.92],
-    halation: 0.35,
+    blueCurve: [0.88, 0.92, 0.98],
+    halation: 0.42,
     blackAndWhite: false,
-    grainSize: 1.5,
+    grainSize: 1.6,
   },
 };
 
@@ -270,8 +270,8 @@ const FRAGMENT_SHADER = `
     return value;
   }
   
-  // Film grain with varying intensity
-  vec3 applyGrain(vec3 color, vec2 uv, float intensity, float size) {
+  // Film grain with chroma noise for color films
+  vec3 applyGrain(vec3 color, vec2 uv, float intensity, float size, float isBW) {
     if (intensity <= 0.0) return color;
     
     vec2 grainCoord = uv * u_resolution / size + vec2(u_time * 0.001);
@@ -282,7 +282,24 @@ const FRAGMENT_SHADER = `
     float grainMask = 1.0 - abs(luma * 2.0 - 1.0);
     grainMask = pow(grainMask, 0.7) * 1.5;
     
-    return color + grainValue * intensity * grainMask * 0.1;
+    float grainAmount = grainValue * intensity * grainMask * 0.1;
+    
+    if (isBW > 0.5) {
+      // B&W: apply uniform grain
+      return color + grainAmount;
+    } else {
+      // Color: apply chroma grain (different per channel for realism)
+      vec2 grainCoordR = grainCoord + vec2(0.1, 0.2);
+      vec2 grainCoordB = grainCoord + vec2(-0.15, 0.1);
+      float grainR = fbm(grainCoordR) * 2.0 - 1.0;
+      float grainB = fbm(grainCoordB) * 2.0 - 1.0;
+      
+      return vec3(
+        color.r + grainR * intensity * grainMask * 0.08,
+        color.g + grainValue * intensity * grainMask * 0.1,
+        color.b + grainB * intensity * grainMask * 0.08
+      );
+    }
   }
   
   // S-curve for contrast
@@ -292,11 +309,40 @@ const FRAGMENT_SHADER = `
     return (x - 0.5) * (1.0 + s) / (1.0 + s * abs(x - 0.5) * 2.0) + 0.5;
   }
   
+  // Film response curve with proper toe and shoulder (more realistic)
+  float filmResponse(float x, vec3 curve) {
+    // curve.x = toe strength, curve.y = midtone, curve.z = shoulder
+    // Use smooth S-curve approximation for better performance
+    float toe = curve.x;
+    float mid = curve.y;
+    float shoulder = curve.z;
+    
+    // Simplified film response curve
+    float t = clamp(x, 0.0, 1.0);
+    
+    // Toe region (shadows)
+    float toeRegion = smoothstep(0.0, 0.3, t);
+    float toeCurve = pow(t, 1.0 / (1.0 + toe * 0.5));
+    
+    // Midtone region
+    float midCurve = t * mid;
+    
+    // Shoulder region (highlights)
+    float shoulderRegion = smoothstep(0.7, 1.0, t);
+    float shoulderCurve = 1.0 - pow(1.0 - t, 1.0 + shoulder * 0.3);
+    
+    // Blend regions
+    float result = mix(toeCurve, midCurve, toeRegion);
+    result = mix(result, shoulderCurve, shoulderRegion);
+    
+    return clamp(result, 0.0, 1.0);
+  }
+  
   // Color curves with toe and shoulder
   vec3 applyColorCurves(vec3 color, vec3 rCurve, vec3 gCurve, vec3 bCurve) {
-    float r = pow(color.r, 1.0 / rCurve.x) * rCurve.y + (1.0 - rCurve.y) * rCurve.z;
-    float g = pow(color.g, 1.0 / gCurve.x) * gCurve.y + (1.0 - gCurve.y) * gCurve.z;
-    float b = pow(color.b, 1.0 / bCurve.x) * bCurve.y + (1.0 - bCurve.y) * bCurve.z;
+    float r = filmResponse(color.r, rCurve);
+    float g = filmResponse(color.g, gCurve);
+    float b = filmResponse(color.b, bCurve);
     
     return vec3(r, g, b);
   }
@@ -315,34 +361,43 @@ const FRAGMENT_SHADER = `
     return color;
   }
   
-  // Halation effect (light bloom around highlights)
+  // Optimized halation effect with radial falloff
   vec3 applyHalation(vec2 uv, float intensity) {
     if (intensity <= 0.0) return vec3(0.0);
     
     vec3 bloom = vec3(0.0);
-    const int SAMPLES = 16;
-    float radius = 0.01 * intensity;
+    const int SAMPLES = 12; // Reduced from 16 for performance
+    float radius = 0.015 * intensity;
+    float weightSum = 0.0;
     
+    // Sample in radial pattern with distance-based weighting
     for (int i = 0; i < SAMPLES; i++) {
       float angle = (float(i) / float(SAMPLES)) * 6.28318;
-      vec2 offset = vec2(cos(angle), sin(angle)) * radius;
+      float dist = radius * (0.5 + float(i) / float(SAMPLES) * 0.5);
+      vec2 offset = vec2(cos(angle), sin(angle)) * dist;
       vec3 sample = texture2D(u_image, uv + offset).rgb;
       
       // Only bright areas contribute to halation
       float brightness = max(max(sample.r, sample.g), sample.b);
-      if (brightness > 0.8) {
-        bloom += sample * (brightness - 0.8) * 5.0;
+      if (brightness > 0.75) {
+        // Radial falloff weight
+        float weight = 1.0 / (1.0 + dist * 50.0);
+        float contribution = (brightness - 0.75) * 4.0 * weight;
+        bloom += sample * contribution;
+        weightSum += weight;
       }
     }
     
-    bloom /= float(SAMPLES);
+    if (weightSum > 0.0) {
+      bloom /= weightSum;
+    }
     
-    // Red halation characteristic of CineStill
-    bloom.r *= 1.5;
-    bloom.g *= 0.8;
-    bloom.b *= 0.6;
+    // Red halation characteristic of CineStill (remjet removed)
+    bloom.r *= 1.6;
+    bloom.g *= 0.75;
+    bloom.b *= 0.55;
     
-    return bloom * 0.3;
+    return bloom * 0.25;
   }
   
   // Black and white conversion with color channel weighting
@@ -370,32 +425,54 @@ const FRAGMENT_SHADER = `
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
   }
   
+  // Gamma correction (linear to sRGB)
+  vec3 linearToSRGB(vec3 linear) {
+    return mix(
+      linear * 12.92,
+      pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,
+      step(0.0031308, linear)
+    );
+  }
+  
   void main() {
     vec2 uv = v_texCoord;
-    vec3 color = texture2D(u_image, uv).rgb;
+    vec3 originalColor = texture2D(u_image, uv).rgb;
+    vec3 color = originalColor;
     
-    // Apply halation first (affects highlights)
+    // Convert to linear space for processing
+    // (assuming input is sRGB, convert to linear)
+    color = pow(color, vec3(2.2));
+    
+    // Apply halation first (samples original image before processing)
     if (u_halation > 0.0) {
       vec3 halation = applyHalation(uv, u_halation);
       color += halation;
     }
     
-    // Apply color curves for film response
-    color = applyColorCurves(color, u_redCurve, u_greenCurve, u_blueCurve);
-    
-    // Warmth adjustment
-    if (u_warmth != 0.0) {
-      color.r = color.r + u_warmth * 0.1;
-      color.b = color.b - u_warmth * 0.08;
+    // Black and white conversion before color curves for B&W films
+    if (u_blackAndWhite > 0.5) {
+      color = toBlackAndWhite(color);
     }
     
-    // Saturation
+    // Apply color curves for film response (only for color films)
+    if (u_blackAndWhite < 0.5) {
+      color = applyColorCurves(color, u_redCurve, u_greenCurve, u_blueCurve);
+    }
+    
+    // Warmth adjustment (color temperature shift)
+    if (u_warmth != 0.0 && u_blackAndWhite < 0.5) {
+      // More realistic color temperature shift
+      float tempShift = u_warmth * 0.15;
+      color.r = color.r + tempShift;
+      color.g = color.g + tempShift * 0.3;
+      color.b = color.b - tempShift * 0.7;
+    }
+    
+    // Saturation (only for color films)
     if (u_blackAndWhite < 0.5) {
       vec3 hsv = rgb2hsv(color);
       hsv.y *= u_saturation;
       color = hsv2rgb(hsv);
-    } else {
-      color = toBlackAndWhite(color);
     }
     
     // Contrast with S-curve
@@ -406,8 +483,11 @@ const FRAGMENT_SHADER = `
     // Highlight and shadow adjustments
     color = adjustTones(color, u_highlights, u_shadows);
     
-    // Apply film grain
-    color = applyGrain(color, uv, u_grain, u_grainSize);
+    // Apply film grain (with chroma for color films)
+    color = applyGrain(color, uv, u_grain, u_grainSize, u_blackAndWhite);
+    
+    // Convert back to sRGB for display
+    color = linearToSRGB(color);
     
     // Clamp to valid range
     color = clamp(color, 0.0, 1.0);
@@ -424,6 +504,10 @@ export class FilmWebGL {
   private texCoordBuffer: WebGLBuffer | null = null;
   private startTime: number = Date.now();
   private currentFilmStock: FilmStock = 'kodak-portra-400';
+  // Cache uniform locations for performance
+  private uniformLocations: Map<string, WebGLUniformLocation | null> =
+    new Map();
+  private attributeLocations: Map<string, number> = new Map();
 
   constructor(private canvas: HTMLCanvasElement) {
     this.initialize();
@@ -462,6 +546,9 @@ export class FilmWebGL {
     if (!this.program) {
       return false;
     }
+
+    // Cache uniform and attribute locations for performance
+    this.cacheLocations();
 
     // Set up geometry buffers
     this.setupBuffers();
@@ -513,6 +600,46 @@ export class FilmWebGL {
     }
 
     return program;
+  }
+
+  private cacheLocations(): void {
+    if (!this.gl || !this.program) return;
+
+    // Cache uniform locations
+    const uniformNames = [
+      'u_image',
+      'u_resolution',
+      'u_grain',
+      'u_contrast',
+      'u_saturation',
+      'u_warmth',
+      'u_highlights',
+      'u_shadows',
+      'u_redCurve',
+      'u_greenCurve',
+      'u_blueCurve',
+      'u_halation',
+      'u_blackAndWhite',
+      'u_grainSize',
+      'u_time',
+    ];
+
+    uniformNames.forEach(name => {
+      this.uniformLocations.set(
+        name,
+        this.gl!.getUniformLocation(this.program!, name),
+      );
+    });
+
+    // Cache attribute locations
+    this.attributeLocations.set(
+      'a_position',
+      this.gl.getAttribLocation(this.program!, 'a_position'),
+    );
+    this.attributeLocations.set(
+      'a_texCoord',
+      this.gl.getAttribLocation(this.program!, 'a_texCoord'),
+    );
   }
 
   private setupBuffers(): void {
@@ -592,15 +719,9 @@ export class FilmWebGL {
 
     this.gl.useProgram(this.program);
 
-    // Set up attributes
-    const positionLocation = this.gl.getAttribLocation(
-      this.program,
-      'a_position',
-    );
-    const texCoordLocation = this.gl.getAttribLocation(
-      this.program,
-      'a_texCoord',
-    );
+    // Set up attributes using cached locations
+    const positionLocation = this.attributeLocations.get('a_position')!;
+    const texCoordLocation = this.attributeLocations.get('a_texCoord')!;
 
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
     this.gl.enableVertexAttribArray(positionLocation);
@@ -624,65 +745,31 @@ export class FilmWebGL {
       0,
     );
 
-    // Set uniforms
-    this.gl.uniform1i(this.gl.getUniformLocation(this.program, 'u_image'), 0);
+    // Set uniforms using cached locations
+    const loc = (name: string) => this.uniformLocations.get(name);
+
+    this.gl.uniform1i(loc('u_image')!, 0);
     this.gl.uniform2f(
-      this.gl.getUniformLocation(this.program, 'u_resolution'),
+      loc('u_resolution')!,
       this.canvas.width,
       this.canvas.height,
     );
+    this.gl.uniform1f(loc('u_grain')!, characteristics.grain);
+    this.gl.uniform1f(loc('u_contrast')!, characteristics.contrast);
+    this.gl.uniform1f(loc('u_saturation')!, characteristics.saturation);
+    this.gl.uniform1f(loc('u_warmth')!, characteristics.warmth);
+    this.gl.uniform1f(loc('u_highlights')!, characteristics.highlights);
+    this.gl.uniform1f(loc('u_shadows')!, characteristics.shadows);
+    this.gl.uniform3fv(loc('u_redCurve')!, characteristics.redCurve);
+    this.gl.uniform3fv(loc('u_greenCurve')!, characteristics.greenCurve);
+    this.gl.uniform3fv(loc('u_blueCurve')!, characteristics.blueCurve);
+    this.gl.uniform1f(loc('u_halation')!, characteristics.halation);
     this.gl.uniform1f(
-      this.gl.getUniformLocation(this.program, 'u_grain'),
-      characteristics.grain,
-    );
-    this.gl.uniform1f(
-      this.gl.getUniformLocation(this.program, 'u_contrast'),
-      characteristics.contrast,
-    );
-    this.gl.uniform1f(
-      this.gl.getUniformLocation(this.program, 'u_saturation'),
-      characteristics.saturation,
-    );
-    this.gl.uniform1f(
-      this.gl.getUniformLocation(this.program, 'u_warmth'),
-      characteristics.warmth,
-    );
-    this.gl.uniform1f(
-      this.gl.getUniformLocation(this.program, 'u_highlights'),
-      characteristics.highlights,
-    );
-    this.gl.uniform1f(
-      this.gl.getUniformLocation(this.program, 'u_shadows'),
-      characteristics.shadows,
-    );
-    this.gl.uniform3fv(
-      this.gl.getUniformLocation(this.program, 'u_redCurve'),
-      characteristics.redCurve,
-    );
-    this.gl.uniform3fv(
-      this.gl.getUniformLocation(this.program, 'u_greenCurve'),
-      characteristics.greenCurve,
-    );
-    this.gl.uniform3fv(
-      this.gl.getUniformLocation(this.program, 'u_blueCurve'),
-      characteristics.blueCurve,
-    );
-    this.gl.uniform1f(
-      this.gl.getUniformLocation(this.program, 'u_halation'),
-      characteristics.halation,
-    );
-    this.gl.uniform1f(
-      this.gl.getUniformLocation(this.program, 'u_blackAndWhite'),
+      loc('u_blackAndWhite')!,
       characteristics.blackAndWhite ? 1.0 : 0.0,
     );
-    this.gl.uniform1f(
-      this.gl.getUniformLocation(this.program, 'u_grainSize'),
-      characteristics.grainSize,
-    );
-    this.gl.uniform1f(
-      this.gl.getUniformLocation(this.program, 'u_time'),
-      Date.now() - this.startTime,
-    );
+    this.gl.uniform1f(loc('u_grainSize')!, characteristics.grainSize);
+    this.gl.uniform1f(loc('u_time')!, Date.now() - this.startTime);
 
     // Bind texture
     this.gl.activeTexture(this.gl.TEXTURE0);
@@ -714,6 +801,10 @@ export class FilmWebGL {
       this.gl.deleteProgram(this.program);
       this.program = null;
     }
+
+    // Clear caches
+    this.uniformLocations.clear();
+    this.attributeLocations.clear();
 
     this.gl = null;
   }
