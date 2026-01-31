@@ -3,10 +3,119 @@
  * Start with just film grain - the simplest visible effect
  */
 
+export interface FilmParameters {
+  grainIntensity: number;
+  warmth: number;
+  contrast: number;
+  vignette: number;
+  fade: number;
+  halation: number;
+  bloom: number;
+}
+
+export type FilmPresetName =
+  | 'kodak-portra'
+  | 'fuji-velvia'
+  | 'cinestill-800t'
+  | 'kodak-gold'
+  | 'fuji-400h'
+  | 'ilford-hp5'
+  | 'kodak-tri-x';
+
+export const FILM_PRESETS: Record<FilmPresetName, FilmParameters> = {
+  'kodak-portra': {
+    grainIntensity: 0.08,
+    warmth: 0.62,
+    contrast: 0.2,
+    vignette: 0.1,
+    fade: 0.3,
+    halation: 0.0,
+    bloom: 0.2,
+  },
+  'fuji-velvia': {
+    grainIntensity: 0.05,
+    warmth: 0.45, // Cooler, blue-green cast
+    contrast: 0.5, // High contrast, punchy
+    vignette: 0.2,
+    fade: 0.1, // Minimal fade, rich blacks
+    halation: 0.0,
+    bloom: 0.15,
+  },
+  'cinestill-800t': {
+    grainIntensity: 0.2,
+    warmth: 0.55,
+    contrast: 0.3,
+    vignette: 0.3,
+    fade: 0.4,
+    halation: 0.8, // Heavy red halation - signature look
+    bloom: 0.5,
+  },
+  'kodak-gold': {
+    grainIntensity: 0.15,
+    warmth: 0.7, // Very warm, golden
+    contrast: 0.25,
+    vignette: 0.35,
+    fade: 0.6, // Heavy fade, vintage look
+    halation: 0.0,
+    bloom: 0.25,
+  },
+  'fuji-400h': {
+    grainIntensity: 0.1,
+    warmth: 0.48, // Slightly cool, green-blue shadows
+    contrast: 0.15, // Low contrast, soft
+    vignette: 0.15,
+    fade: 0.4,
+    halation: 0.0,
+    bloom: 0.3,
+  },
+  'ilford-hp5': {
+    grainIntensity: 0.18,
+    warmth: 0.5, // Neutral for B&W
+    contrast: 0.4, // Classic B&W contrast
+    vignette: 0.25,
+    fade: 0.2,
+    halation: 0.0,
+    bloom: 0.1,
+  },
+  'kodak-tri-x': {
+    grainIntensity: 0.22,
+    warmth: 0.5, // Neutral for B&W
+    contrast: 0.45, // High contrast, gritty
+    vignette: 0.3,
+    fade: 0.15,
+    halation: 0.0,
+    bloom: 0.0,
+  },
+};
+
 export function applyFilmShader(
   canvas: HTMLCanvasElement,
   image: HTMLImageElement,
-  grainIntensity: number = 0.1,
+  preset: FilmPresetName,
+): void;
+export function applyFilmShader(
+  canvas: HTMLCanvasElement,
+  image: HTMLImageElement,
+  parameters: Partial<FilmParameters>,
+): void;
+export function applyFilmShader(
+  canvas: HTMLCanvasElement,
+  image: HTMLImageElement,
+  grainIntensity: number,
+  warmth: number,
+  contrast: number,
+  vignette: number,
+  fade: number,
+  halation: number,
+  bloom: number,
+): void;
+export function applyFilmShader(
+  canvas: HTMLCanvasElement,
+  image: HTMLImageElement,
+  presetOrGrainOrParams:
+    | FilmPresetName
+    | Partial<FilmParameters>
+    | number = 0.1,
   warmth: number = 0.5,
   contrast: number = 0.0,
   vignette: number = 0.0,
@@ -14,6 +123,36 @@ export function applyFilmShader(
   halation: number = 0.0,
   bloom: number = 0.0,
 ): void {
+  let params: FilmParameters;
+
+  // Determine which API was used
+  if (typeof presetOrGrainOrParams === 'string') {
+    // Preset name provided
+    params = FILM_PRESETS[presetOrGrainOrParams];
+  } else if (typeof presetOrGrainOrParams === 'object') {
+    // Parameters object provided
+    const defaults: FilmParameters = {
+      grainIntensity: 0.1,
+      warmth: 0.5,
+      contrast: 0.0,
+      vignette: 0.0,
+      fade: 0.0,
+      halation: 0.0,
+      bloom: 0.0,
+    };
+    params = { ...defaults, ...presetOrGrainOrParams };
+  } else {
+    // Individual parameters provided
+    params = {
+      grainIntensity: presetOrGrainOrParams,
+      warmth,
+      contrast,
+      vignette,
+      fade,
+      halation,
+      bloom,
+    };
+  }
   const gl = canvas.getContext('webgl');
   if (!gl) {
     console.error('WebGL not supported');
@@ -226,25 +365,25 @@ export function applyFilmShader(
     program,
     'u_grainIntensity',
   );
-  gl.uniform1f(grainIntensityLocation, grainIntensity);
+  gl.uniform1f(grainIntensityLocation, params.grainIntensity);
 
   const warmthLocation = gl.getUniformLocation(program, 'u_warmth');
-  gl.uniform1f(warmthLocation, warmth);
+  gl.uniform1f(warmthLocation, params.warmth);
 
   const contrastLocation = gl.getUniformLocation(program, 'u_contrast');
-  gl.uniform1f(contrastLocation, contrast);
+  gl.uniform1f(contrastLocation, params.contrast);
 
   const vignetteLocation = gl.getUniformLocation(program, 'u_vignette');
-  gl.uniform1f(vignetteLocation, vignette);
+  gl.uniform1f(vignetteLocation, params.vignette);
 
   const fadeLocation = gl.getUniformLocation(program, 'u_fade');
-  gl.uniform1f(fadeLocation, fade);
+  gl.uniform1f(fadeLocation, params.fade);
 
   const halationLocation = gl.getUniformLocation(program, 'u_halation');
-  gl.uniform1f(halationLocation, halation);
+  gl.uniform1f(halationLocation, params.halation);
 
   const bloomLocation = gl.getUniformLocation(program, 'u_bloom');
-  gl.uniform1f(bloomLocation, bloom);
+  gl.uniform1f(bloomLocation, params.bloom);
 
   const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
   gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
