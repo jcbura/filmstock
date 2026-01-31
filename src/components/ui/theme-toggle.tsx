@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from '@/components';
+import { Button } from '@/components';
 import { SunHorizonIcon } from '@phosphor-icons/react';
 import { useTheme } from 'next-themes';
 
@@ -12,13 +12,14 @@ export const ThemeToggle = () => {
   };
 
   return (
-    <Tooltip delayDuration={700}>
-      <TooltipTrigger asChild>
-        <Button variant="ghost" size="icon-sm" onClick={toggleTheme}>
-          <SunHorizonIcon />
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>Toggle Theme</TooltipContent>
-    </Tooltip>
+    <Button
+      variant="outline"
+      size="icon-sm"
+      className="rounded-full"
+      onClick={toggleTheme}
+    >
+      <span className="sr-only">Toggle Theme</span>
+      <SunHorizonIcon />
+    </Button>
   );
 };
