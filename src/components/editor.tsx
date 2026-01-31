@@ -1,13 +1,11 @@
 'use client';
 
 import { Button } from '@/components';
-import { FilmWebGL } from '@/utils';
 import { CaretUpDownIcon, XIcon } from '@phosphor-icons/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const CanvasImage = ({ file }: { file: File }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const rendererRef = useRef<FilmWebGL | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -17,13 +15,13 @@ const CanvasImage = ({ file }: { file: File }) => {
     const img = new window.Image();
 
     img.onload = () => {
-      if (!rendererRef.current) {
-        rendererRef.current = new FilmWebGL(canvas);
-      }
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
 
-      rendererRef.current.loadImage(img);
-      rendererRef.current.setFilmStock('kodak-gold-200');
-      rendererRef.current.render();
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      ctx.drawImage(img, 0, 0);
 
       URL.revokeObjectURL(imageUrl);
     };
@@ -31,10 +29,6 @@ const CanvasImage = ({ file }: { file: File }) => {
     img.src = imageUrl;
 
     return () => {
-      if (rendererRef.current) {
-        rendererRef.current.dispose();
-        rendererRef.current = null;
-      }
       URL.revokeObjectURL(imageUrl);
     };
   }, [file]);
@@ -42,7 +36,7 @@ const CanvasImage = ({ file }: { file: File }) => {
   return (
     <canvas
       ref={canvasRef}
-      className="max-h-[calc(100vh-10rem)] max-w-[calc(100vw-4rem)] object-contain select-none sm:max-w-full"
+      className="max-h-[calc(100vh-10rem)] max-w-[calc(100vw-4rem)] object-contain grayscale select-none sm:max-w-full"
     />
   );
 };
@@ -169,11 +163,13 @@ export const Editor = ({
               <CanvasImage file={file} />
             </div>
             <div
-              style={{ left: `${sliderPosition}%` }}
+              style={{
+                left: `calc(${sliderPosition}% - ${sliderPosition}px / 100)`,
+              }}
               className="absolute inset-y-0 cursor-ew-resize select-none"
             >
               <div className="bg-primary h-full w-px" />
-              <div className="bg-primary absolute top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded px-2 py-0.5">
+              <div className="bg-primary absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded px-2 py-0.5">
                 <CaretUpDownIcon
                   weight="fill"
                   className="text-primary-foreground rotate-90"
