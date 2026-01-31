@@ -7,6 +7,7 @@ export function applyFilmShader(
   canvas: HTMLCanvasElement,
   image: HTMLImageElement,
   grainIntensity: number = 0.1,
+  warmth: number = 0.5,
 ): void {
   const gl = canvas.getContext('webgl');
   if (!gl) {
@@ -26,13 +27,14 @@ export function applyFilmShader(
     }
   `;
 
-  // Fragment shader - adds simple film grain
+  // Fragment shader - adds simple film grain and color shift
   const fragmentShaderSource = `
     precision mediump float;
     varying vec2 v_texCoord;
     uniform sampler2D u_image;
     uniform float u_time;
     uniform float u_grainIntensity;
+    uniform float u_warmth;
     
     // Simple pseudo-random function for grain
     float random(vec2 co) {
@@ -41,6 +43,14 @@ export function applyFilmShader(
     
     void main() {
       vec4 color = texture2D(u_image, v_texCoord);
+      
+      // Apply color shift based on warmth (0.5 = neutral)
+      // warmth > 0.5: warmer (more red/yellow, less blue)
+      // warmth < 0.5: cooler (more blue, less red/yellow)
+      float warmthShift = (u_warmth - 0.5) * 0.2; // Scale to reasonable range
+      color.r *= 1.0 + warmthShift;
+      color.g *= 1.0 + warmthShift * 0.5;
+      color.b *= 1.0 - warmthShift;
       
       // Add grain with dynamic intensity
       float grain = random(v_texCoord * u_time) * u_grainIntensity;
@@ -111,6 +121,9 @@ export function applyFilmShader(
     'u_grainIntensity',
   );
   gl.uniform1f(grainIntensityLocation, grainIntensity);
+
+  const warmthLocation = gl.getUniformLocation(program, 'u_warmth');
+  gl.uniform1f(warmthLocation, warmth);
 
   // Draw
   gl.viewport(0, 0, canvas.width, canvas.height);

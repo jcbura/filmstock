@@ -19,7 +19,7 @@ const CanvasImage = ({ file }: { file: File }) => {
       canvas.width = img.width;
       canvas.height = img.height;
 
-      applyFilmShader(canvas, img, 0.4);
+      applyFilmShader(canvas, img, 0.15, 0.65);
 
       URL.revokeObjectURL(imageUrl);
     };
