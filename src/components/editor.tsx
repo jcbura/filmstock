@@ -19,7 +19,7 @@ const CanvasImage = ({ file }: { file: File }) => {
       canvas.width = img.width;
       canvas.height = img.height;
 
-      applyFilmShader(canvas, img, 'kodak-portra');
+      applyFilmShader(canvas, img, 'kodak-gold');
 
       URL.revokeObjectURL(imageUrl);
     };
