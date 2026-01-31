@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components';
+import { applyFilmShader } from '@/utils';
 import { CaretUpDownIcon, XIcon } from '@phosphor-icons/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -15,13 +16,10 @@ const CanvasImage = ({ file }: { file: File }) => {
     const img = new window.Image();
 
     img.onload = () => {
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
       canvas.width = img.width;
       canvas.height = img.height;
 
-      ctx.drawImage(img, 0, 0);
+      applyFilmShader(canvas, img, 0.4);
 
       URL.revokeObjectURL(imageUrl);
     };
@@ -36,7 +34,7 @@ const CanvasImage = ({ file }: { file: File }) => {
   return (
     <canvas
       ref={canvasRef}
-      className="max-h-[calc(100vh-10rem)] max-w-[calc(100vw-4rem)] object-contain grayscale select-none sm:max-w-full"
+      className="max-h-[calc(100vh-10rem)] max-w-[calc(100vw-4rem)] object-contain select-none sm:max-w-full"
     />
   );
 };
