@@ -1,8 +1,3 @@
-/**
- * Ultra-minimal WebGL shader for film effects
- * Start with just film grain - the simplest visible effect
- */
-
 export interface FilmParameters {
   grainIntensity: number;
   warmth: number;
