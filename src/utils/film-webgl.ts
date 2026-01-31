@@ -10,6 +10,7 @@ export function applyFilmShader(
   warmth: number = 0.5,
   contrast: number = 0.0,
   vignette: number = 0.0,
+  fade: number = 0.0,
 ): void {
   const gl = canvas.getContext('webgl');
   if (!gl) {
@@ -29,7 +30,7 @@ export function applyFilmShader(
     }
   `;
 
-  // Fragment shader - film grain, color shift, contrast curve, and vignette
+  // Fragment shader - film grain, color shift, contrast curve, vignette, and fade
   const fragmentShaderSource = `
     precision mediump float;
     varying vec2 v_texCoord;
@@ -39,6 +40,7 @@ export function applyFilmShader(
     uniform float u_warmth;
     uniform float u_contrast;
     uniform float u_vignette;
+    uniform float u_fade;
     
     // Simple pseudo-random function for grain
     float random(vec2 co) {
@@ -70,6 +72,12 @@ export function applyFilmShader(
       color.r *= 1.0 + warmthShift;
       color.g *= 1.0 + warmthShift * 0.5;
       color.b *= 1.0 - warmthShift;
+      
+      // Apply fade (lift blacks) - characteristic of film
+      // Prevents pure black, adds that faded vintage look
+      if (u_fade > 0.0) {
+        color.rgb = mix(color.rgb, color.rgb + vec3(u_fade * 0.15), u_fade);
+      }
       
       // Apply vignette (darkening at edges)
       if (u_vignette > 0.0) {
@@ -162,6 +170,9 @@ export function applyFilmShader(
 
   const vignetteLocation = gl.getUniformLocation(program, 'u_vignette');
   gl.uniform1f(vignetteLocation, vignette);
+
+  const fadeLocation = gl.getUniformLocation(program, 'u_fade');
+  gl.uniform1f(fadeLocation, fade);
 
   // Draw
   gl.viewport(0, 0, canvas.width, canvas.height);
