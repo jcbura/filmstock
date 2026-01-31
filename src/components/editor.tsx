@@ -19,7 +19,7 @@ const CanvasImage = ({ file }: { file: File }) => {
       canvas.width = img.width;
       canvas.height = img.height;
 
-      applyFilmShader(canvas, img, 'kodak-gold');
+      applyFilmShader(canvas, img, { grainIntensity: 0.15, warmth: 0.65 });
 
       URL.revokeObjectURL(imageUrl);
     };
