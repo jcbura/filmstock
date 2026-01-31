@@ -8,6 +8,7 @@ export function applyFilmShader(
   image: HTMLImageElement,
   grainIntensity: number = 0.1,
   warmth: number = 0.5,
+  contrast: number = 0.0,
 ): void {
   const gl = canvas.getContext('webgl');
   if (!gl) {
@@ -27,7 +28,7 @@ export function applyFilmShader(
     }
   `;
 
-  // Fragment shader - adds simple film grain and color shift
+  // Fragment shader - adds film grain, color shift, and contrast curve
   const fragmentShaderSource = `
     precision mediump float;
     varying vec2 v_texCoord;
@@ -35,14 +36,30 @@ export function applyFilmShader(
     uniform float u_time;
     uniform float u_grainIntensity;
     uniform float u_warmth;
+    uniform float u_contrast;
     
     // Simple pseudo-random function for grain
     float random(vec2 co) {
       return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
     }
     
+    // S-curve for contrast adjustment
+    // Brightens highlights, deepens shadows
+    float applySCurve(float x, float strength) {
+      if (strength == 0.0) return x;
+      
+      // Simple S-curve using smoothstep-like function
+      float curved = x * x * (3.0 - 2.0 * x); // Basic S-curve
+      return mix(x, curved, strength);
+    }
+    
     void main() {
       vec4 color = texture2D(u_image, v_texCoord);
+      
+      // Apply contrast S-curve per channel
+      color.r = applySCurve(color.r, u_contrast);
+      color.g = applySCurve(color.g, u_contrast);
+      color.b = applySCurve(color.b, u_contrast);
       
       // Apply color shift based on warmth (0.5 = neutral)
       // warmth > 0.5: warmer (more red/yellow, less blue)
@@ -124,6 +141,9 @@ export function applyFilmShader(
 
   const warmthLocation = gl.getUniformLocation(program, 'u_warmth');
   gl.uniform1f(warmthLocation, warmth);
+
+  const contrastLocation = gl.getUniformLocation(program, 'u_contrast');
+  gl.uniform1f(contrastLocation, contrast);
 
   // Draw
   gl.viewport(0, 0, canvas.width, canvas.height);
