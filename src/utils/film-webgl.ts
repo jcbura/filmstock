@@ -11,6 +11,7 @@ export function applyFilmShader(
   contrast: number = 0.0,
   vignette: number = 0.0,
   fade: number = 0.0,
+  halation: number = 0.0,
 ): void {
   const gl = canvas.getContext('webgl');
   if (!gl) {
@@ -30,7 +31,7 @@ export function applyFilmShader(
     }
   `;
 
-  // Fragment shader - film grain, color shift, contrast curve, vignette, and fade
+  // Fragment shader - complete film emulation with halation
   const fragmentShaderSource = `
     precision mediump float;
     varying vec2 v_texCoord;
@@ -41,6 +42,8 @@ export function applyFilmShader(
     uniform float u_contrast;
     uniform float u_vignette;
     uniform float u_fade;
+    uniform float u_halation;
+    uniform vec2 u_resolution;
     
     // Simple pseudo-random function for grain
     float random(vec2 co) {
@@ -59,6 +62,39 @@ export function applyFilmShader(
     
     void main() {
       vec4 color = texture2D(u_image, v_texCoord);
+      
+      // Apply halation (red/orange glow around bright areas)
+      if (u_halation > 0.0) {
+        // Sample surrounding pixels to create glow effect
+        vec2 texelSize = 1.0 / u_resolution;
+        vec3 glow = vec3(0.0);
+        float totalBrightness = 0.0;
+        
+        // Sample in a small radius around current pixel
+        // Using constant loop bounds (WebGL requirement)
+        for (int x = -3; x <= 3; x++) {
+          for (int y = -3; y <= 3; y++) {
+            vec2 offset = vec2(float(x), float(y)) * texelSize * 2.0;
+            vec4 sample = texture2D(u_image, v_texCoord + offset);
+            
+            // Calculate brightness
+            float brightness = dot(sample.rgb, vec3(0.299, 0.587, 0.114));
+            
+            // Only bright areas contribute to halation
+            if (brightness > 0.7) {
+              float dist = length(vec2(float(x), float(y)));
+              float falloff = 1.0 - dist / 3.0;
+              totalBrightness += (brightness - 0.7) * falloff;
+            }
+          }
+        }
+        
+        // Create red-orange halation glow
+        if (totalBrightness > 0.0) {
+          glow = vec3(1.0, 0.3, 0.1) * totalBrightness * u_halation * 0.3;
+          color.rgb += glow;
+        }
+      }
       
       // Apply contrast S-curve per channel
       color.r = applySCurve(color.r, u_contrast);
@@ -173,6 +209,12 @@ export function applyFilmShader(
 
   const fadeLocation = gl.getUniformLocation(program, 'u_fade');
   gl.uniform1f(fadeLocation, fade);
+
+  const halationLocation = gl.getUniformLocation(program, 'u_halation');
+  gl.uniform1f(halationLocation, halation);
+
+  const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
+  gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
 
   // Draw
   gl.viewport(0, 0, canvas.width, canvas.height);
