@@ -12,6 +12,7 @@ export function applyFilmShader(
   vignette: number = 0.0,
   fade: number = 0.0,
   halation: number = 0.0,
+  bloom: number = 0.0,
 ): void {
   const gl = canvas.getContext('webgl');
   if (!gl) {
@@ -31,7 +32,7 @@ export function applyFilmShader(
     }
   `;
 
-  // Fragment shader - complete film emulation with halation
+  // Fragment shader - complete film emulation with halation and bloom
   const fragmentShaderSource = `
     precision mediump float;
     varying vec2 v_texCoord;
@@ -43,6 +44,7 @@ export function applyFilmShader(
     uniform float u_vignette;
     uniform float u_fade;
     uniform float u_halation;
+    uniform float u_bloom;
     uniform vec2 u_resolution;
     
     // Simple pseudo-random function for grain
@@ -94,6 +96,34 @@ export function applyFilmShader(
           glow = vec3(1.0, 0.3, 0.1) * totalBrightness * u_halation * 0.3;
           color.rgb += glow;
         }
+      }
+      
+      // Apply bloom (soft color-preserving glow around bright areas)
+      if (u_bloom > 0.0) {
+        vec2 texelSize = 1.0 / u_resolution;
+        vec3 bloomGlow = vec3(0.0);
+        
+        // Sample in a slightly larger radius for softer bloom
+        for (int x = -4; x <= 4; x++) {
+          for (int y = -4; y <= 4; y++) {
+            vec2 offset = vec2(float(x), float(y)) * texelSize * 1.5;
+            vec4 sample = texture2D(u_image, v_texCoord + offset);
+            
+            // Calculate brightness
+            float brightness = dot(sample.rgb, vec3(0.299, 0.587, 0.114));
+            
+            // Lower threshold for bloom (affects more areas)
+            if (brightness > 0.6) {
+              float dist = length(vec2(float(x), float(y)));
+              float falloff = 1.0 - dist / 4.0;
+              // Preserve the color of the bright area
+              bloomGlow += sample.rgb * (brightness - 0.6) * falloff;
+            }
+          }
+        }
+        
+        // Add soft color-preserving bloom
+        color.rgb += bloomGlow * u_bloom * 0.15;
       }
       
       // Apply contrast S-curve per channel
@@ -212,6 +242,9 @@ export function applyFilmShader(
 
   const halationLocation = gl.getUniformLocation(program, 'u_halation');
   gl.uniform1f(halationLocation, halation);
+
+  const bloomLocation = gl.getUniformLocation(program, 'u_bloom');
+  gl.uniform1f(bloomLocation, bloom);
 
   const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
   gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
