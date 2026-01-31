@@ -1,858 +1,461 @@
 /**
- * Film WebGL Shader System
- * Realistic film stock emulation using WebGL shaders
- * Optimized for performance and visual fidelity
+ * Ultra-minimal WebGL shader for film effects
+ * Start with just film grain - the simplest visible effect
  */
 
-export type FilmStock =
-  | 'kodak-gold-200'
-  | 'kodak-ultramax-400'
-  | 'kodak-portra-400'
-  | 'fujifilm-superia-400'
-  | 'fujifilm-velvia-50'
-  | 'fujifilm-provia-100f'
-  | 'ilford-hp5-plus-400'
-  | 'kodak-tri-x-400'
-  | 'ilford-fp4-plus-125'
-  | 'kodak-t-max-100'
-  | 'cinestill-800t';
-
-interface FilmCharacteristics {
-  name: string;
-  grain: number;
-  contrast: number;
-  saturation: number;
+export interface FilmParameters {
+  grainIntensity: number;
   warmth: number;
-  highlights: number;
-  shadows: number;
-  redCurve: [number, number, number];
-  greenCurve: [number, number, number];
-  blueCurve: [number, number, number];
+  contrast: number;
+  vignette: number;
+  fade: number;
   halation: number;
-  blackAndWhite: boolean;
-  grainSize: number;
+  bloom: number;
+  saturation: number;
 }
 
-const FILM_CHARACTERISTICS: Record<FilmStock, FilmCharacteristics> = {
-  'kodak-gold-200': {
-    name: 'Kodak Gold 200',
-    grain: 0.16,
-    contrast: 1.08,
-    saturation: 1.18,
-    warmth: 0.15,
-    highlights: 0.93,
-    shadows: 1.06,
-    redCurve: [1.12, 0.97, 1.03],
-    greenCurve: [0.95, 1.0, 0.98],
-    blueCurve: [0.88, 0.92, 0.95],
+export type FilmPresetName =
+  | 'kodak-portra'
+  | 'fuji-velvia'
+  | 'cinestill-800t'
+  | 'kodak-gold'
+  | 'fuji-400h'
+  | 'ilford-hp5'
+  | 'kodak-tri-x';
+
+export const FILM_PRESETS: Record<FilmPresetName, FilmParameters> = {
+  'kodak-portra': {
+    grainIntensity: 0.08,
+    warmth: 0.62,
+    contrast: 0.2,
+    vignette: 0.1,
+    fade: 0.3,
     halation: 0.0,
-    blackAndWhite: false,
-    grainSize: 1.2,
+    bloom: 0.2,
+    saturation: 1.0,
   },
-  'kodak-ultramax-400': {
-    name: 'Kodak Ultramax 400',
-    grain: 0.24,
-    contrast: 1.15,
-    saturation: 1.22,
-    warmth: 0.05,
-    highlights: 0.88,
-    shadows: 1.12,
-    redCurve: [1.18, 1.0, 1.06],
-    greenCurve: [0.98, 1.05, 1.0],
-    blueCurve: [0.92, 0.97, 1.02],
+  'fuji-velvia': {
+    grainIntensity: 0.05,
+    warmth: 0.45, // Cooler, blue-green cast
+    contrast: 0.5, // High contrast, punchy
+    vignette: 0.2,
+    fade: 0.1, // Minimal fade, rich blacks
     halation: 0.0,
-    blackAndWhite: false,
-    grainSize: 1.6,
-  },
-  'kodak-portra-400': {
-    name: 'Kodak Portra 400',
-    grain: 0.1,
-    contrast: 1.04,
-    saturation: 1.06,
-    warmth: 0.03,
-    highlights: 0.96,
-    shadows: 1.01,
-    redCurve: [1.01, 1.0, 1.005],
-    greenCurve: [0.99, 1.0, 0.995],
-    blueCurve: [0.97, 0.99, 0.995],
-    halation: 0.0,
-    blackAndWhite: false,
-    grainSize: 0.9,
-  },
-  'fujifilm-superia-400': {
-    name: 'Fujifilm Superia 400',
-    grain: 0.22,
-    contrast: 1.1,
-    saturation: 1.14,
-    warmth: -0.08,
-    highlights: 0.94,
-    shadows: 1.08,
-    redCurve: [1.03, 0.98, 1.01],
-    greenCurve: [0.93, 1.12, 1.04],
-    blueCurve: [0.92, 1.05, 1.08],
-    halation: 0.0,
-    blackAndWhite: false,
-    grainSize: 1.5,
-  },
-  'fujifilm-velvia-50': {
-    name: 'Fujifilm Velvia 50',
-    grain: 0.06,
-    contrast: 1.28,
-    saturation: 1.4,
-    warmth: -0.02,
-    highlights: 0.86,
-    shadows: 1.18,
-    redCurve: [1.18, 1.1, 1.12],
-    greenCurve: [0.92, 1.15, 1.1],
-    blueCurve: [0.85, 1.08, 1.18],
-    halation: 0.0,
-    blackAndWhite: false,
-    grainSize: 0.7,
-  },
-  'fujifilm-provia-100f': {
-    name: 'Fujifilm Provia 100F',
-    grain: 0.09,
-    contrast: 1.08,
-    saturation: 1.1,
-    warmth: -0.03,
-    highlights: 0.94,
-    shadows: 1.03,
-    redCurve: [1.0, 1.0, 1.0],
-    greenCurve: [1.0, 1.0, 1.0],
-    blueCurve: [1.0, 1.0, 1.0],
-    halation: 0.0,
-    blackAndWhite: false,
-    grainSize: 0.85,
-  },
-  'ilford-hp5-plus-400': {
-    name: 'Ilford HP5 Plus 400',
-    grain: 0.3,
-    contrast: 1.12,
-    saturation: 0.0,
-    warmth: 0.0,
-    highlights: 0.92,
-    shadows: 1.1,
-    redCurve: [1.0, 1.0, 1.0],
-    greenCurve: [1.0, 1.0, 1.0],
-    blueCurve: [1.0, 1.0, 1.0],
-    halation: 0.0,
-    blackAndWhite: true,
-    grainSize: 1.7,
-  },
-  'kodak-tri-x-400': {
-    name: 'Kodak Tri-X 400',
-    grain: 0.38,
-    contrast: 1.25,
-    saturation: 0.0,
-    warmth: 0.0,
-    highlights: 0.87,
-    shadows: 1.2,
-    redCurve: [1.0, 1.0, 1.0],
-    greenCurve: [1.0, 1.0, 1.0],
-    blueCurve: [1.0, 1.0, 1.0],
-    halation: 0.0,
-    blackAndWhite: true,
-    grainSize: 1.9,
-  },
-  'ilford-fp4-plus-125': {
-    name: 'Ilford FP4 Plus 125',
-    grain: 0.2,
-    contrast: 1.1,
-    saturation: 0.0,
-    warmth: 0.0,
-    highlights: 0.95,
-    shadows: 1.06,
-    redCurve: [1.0, 1.0, 1.0],
-    greenCurve: [1.0, 1.0, 1.0],
-    blueCurve: [1.0, 1.0, 1.0],
-    halation: 0.0,
-    blackAndWhite: true,
-    grainSize: 1.1,
-  },
-  'kodak-t-max-100': {
-    name: 'Kodak T-Max 100',
-    grain: 0.12,
-    contrast: 1.15,
-    saturation: 0.0,
-    warmth: 0.0,
-    highlights: 0.94,
-    shadows: 1.08,
-    redCurve: [1.0, 1.0, 1.0],
-    greenCurve: [1.0, 1.0, 1.0],
-    blueCurve: [1.0, 1.0, 1.0],
-    halation: 0.0,
-    blackAndWhite: true,
-    grainSize: 0.75,
+    bloom: 0.15,
+    saturation: 1.2, // Oversaturated for Velvia look
   },
   'cinestill-800t': {
-    name: 'CineStill 800T',
-    grain: 0.26,
-    contrast: 1.12,
-    saturation: 1.18,
-    warmth: 0.12,
-    highlights: 0.8,
-    shadows: 1.08,
-    redCurve: [1.15, 1.06, 1.1],
-    greenCurve: [0.95, 1.0, 0.98],
-    blueCurve: [0.88, 0.92, 0.98],
-    halation: 0.42,
-    blackAndWhite: false,
-    grainSize: 1.6,
+    grainIntensity: 0.2,
+    warmth: 0.55,
+    contrast: 0.3,
+    vignette: 0.3,
+    fade: 0.4,
+    halation: 0.8, // Heavy red halation - signature look
+    bloom: 0.5,
+    saturation: 1.0,
+  },
+  'kodak-gold': {
+    grainIntensity: 0.15,
+    warmth: 0.7, // Very warm, golden
+    contrast: 0.25,
+    vignette: 0.35,
+    fade: 0.6, // Heavy fade, vintage look
+    halation: 0.0,
+    bloom: 0.25,
+    saturation: 0.9,
+  },
+  'fuji-400h': {
+    grainIntensity: 0.1,
+    warmth: 0.48, // Slightly cool, green-blue shadows
+    contrast: 0.15, // Low contrast, soft
+    vignette: 0.15,
+    fade: 0.4,
+    halation: 0.0,
+    bloom: 0.3,
+    saturation: 0.85, // Slightly desaturated, pastel look
+  },
+  'ilford-hp5': {
+    grainIntensity: 0.18,
+    warmth: 0.5, // Neutral for B&W
+    contrast: 0.4, // Classic B&W contrast
+    vignette: 0.25,
+    fade: 0.2,
+    halation: 0.0,
+    bloom: 0.1,
+    saturation: 0.0, // Full B&W
+  },
+  'kodak-tri-x': {
+    grainIntensity: 0.22,
+    warmth: 0.5, // Neutral for B&W
+    contrast: 0.45, // High contrast, gritty
+    vignette: 0.3,
+    fade: 0.15,
+    halation: 0.0,
+    bloom: 0.0,
+    saturation: 0.0, // Full B&W
   },
 };
 
-// Vertex shader - simple pass-through
-const VERTEX_SHADER = `
-  attribute vec2 a_position;
-  attribute vec2 a_texCoord;
-  varying vec2 v_texCoord;
-  
-  void main() {
-    gl_Position = vec4(a_position, 0.0, 1.0);
-    v_texCoord = a_texCoord;
-  }
-`;
-
-// Fragment shader - film emulation with all effects
-const FRAGMENT_SHADER = `
-  precision highp float;
-  
-  uniform sampler2D u_image;
-  uniform vec2 u_resolution;
-  uniform float u_grain;
-  uniform float u_contrast;
-  uniform float u_saturation;
-  uniform float u_warmth;
-  uniform float u_highlights;
-  uniform float u_shadows;
-  uniform vec3 u_redCurve;
-  uniform vec3 u_greenCurve;
-  uniform vec3 u_blueCurve;
-  uniform float u_halation;
-  uniform float u_blackAndWhite;
-  uniform float u_grainSize;
-  uniform float u_time;
-  
-  varying vec2 v_texCoord;
-  
-  // High-quality pseudo-random number generator
-  float random(vec2 st) {
-    return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
-  }
-  
-  // Perlin-like noise for organic grain
-  float noise(vec2 st) {
-    vec2 i = floor(st);
-    vec2 f = fract(st);
-    
-    float a = random(i);
-    float b = random(i + vec2(1.0, 0.0));
-    float c = random(i + vec2(0.0, 1.0));
-    float d = random(i + vec2(1.0, 1.0));
-    
-    vec2 u = f * f * (3.0 - 2.0 * f);
-    
-    return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
-  }
-  
-  // Fractal noise for realistic grain structure
-  float fbm(vec2 st) {
-    float value = 0.0;
-    float amplitude = 0.5;
-    float frequency = 1.0;
-    
-    for (int i = 0; i < 4; i++) {
-      value += amplitude * noise(st * frequency);
-      frequency *= 2.0;
-      amplitude *= 0.5;
-    }
-    
-    return value;
-  }
-  
-  // Film grain with chroma noise for color films
-  vec3 applyGrain(vec3 color, vec2 uv, float intensity, float size, float isBW) {
-    if (intensity <= 0.0) return color;
-    
-    vec2 grainCoord = uv * u_resolution / size + vec2(u_time * 0.001);
-    float grainValue = fbm(grainCoord) * 2.0 - 1.0;
-    
-    // Grain intensity varies with luminance (more visible in midtones)
-    float luma = dot(color, vec3(0.299, 0.587, 0.114));
-    float grainMask = 1.0 - abs(luma * 2.0 - 1.0);
-    grainMask = pow(grainMask, 0.7) * 1.5;
-    
-    float grainAmount = grainValue * intensity * grainMask * 0.1;
-    
-    if (isBW > 0.5) {
-      // B&W: apply uniform grain
-      return color + grainAmount;
-    } else {
-      // Color: apply chroma grain (different per channel for realism)
-      vec2 grainCoordR = grainCoord + vec2(0.1, 0.2);
-      vec2 grainCoordB = grainCoord + vec2(-0.15, 0.1);
-      float grainR = fbm(grainCoordR) * 2.0 - 1.0;
-      float grainB = fbm(grainCoordB) * 2.0 - 1.0;
-      
-      return vec3(
-        color.r + grainR * intensity * grainMask * 0.08,
-        color.g + grainValue * intensity * grainMask * 0.1,
-        color.b + grainB * intensity * grainMask * 0.08
-      );
-    }
-  }
-  
-  // S-curve for contrast
-  float applySCurve(float x, float strength) {
-    x = clamp(x, 0.0, 1.0);
-    float s = strength - 1.0;
-    return (x - 0.5) * (1.0 + s) / (1.0 + s * abs(x - 0.5) * 2.0) + 0.5;
-  }
-  
-  // Film response curve with proper toe and shoulder (more realistic)
-  float filmResponse(float x, vec3 curve) {
-    // curve.x = toe strength, curve.y = midtone, curve.z = shoulder
-    // Use smooth S-curve approximation for better performance
-    float toe = curve.x;
-    float mid = curve.y;
-    float shoulder = curve.z;
-    
-    // Simplified film response curve
-    float t = clamp(x, 0.0, 1.0);
-    
-    // Toe region (shadows)
-    float toeRegion = smoothstep(0.0, 0.3, t);
-    float toeCurve = pow(t, 1.0 / (1.0 + toe * 0.5));
-    
-    // Midtone region
-    float midCurve = t * mid;
-    
-    // Shoulder region (highlights)
-    float shoulderRegion = smoothstep(0.7, 1.0, t);
-    float shoulderCurve = 1.0 - pow(1.0 - t, 1.0 + shoulder * 0.3);
-    
-    // Blend regions
-    float result = mix(toeCurve, midCurve, toeRegion);
-    result = mix(result, shoulderCurve, shoulderRegion);
-    
-    return clamp(result, 0.0, 1.0);
-  }
-  
-  // Color curves with toe and shoulder
-  vec3 applyColorCurves(vec3 color, vec3 rCurve, vec3 gCurve, vec3 bCurve) {
-    float r = filmResponse(color.r, rCurve);
-    float g = filmResponse(color.g, gCurve);
-    float b = filmResponse(color.b, bCurve);
-    
-    return vec3(r, g, b);
-  }
-  
-  // Highlight and shadow adjustments
-  vec3 adjustTones(vec3 color, float highlights, float shadows) {
-    float luma = dot(color, vec3(0.299, 0.587, 0.114));
-    
-    // Separate highlights and shadows
-    float highlightMask = smoothstep(0.5, 1.0, luma);
-    float shadowMask = smoothstep(0.5, 0.0, luma);
-    
-    color = mix(color, color * highlights, highlightMask);
-    color = mix(color, color * shadows, shadowMask);
-    
-    return color;
-  }
-  
-  // Optimized halation effect with radial falloff
-  vec3 applyHalation(vec2 uv, float intensity) {
-    if (intensity <= 0.0) return vec3(0.0);
-    
-    vec3 bloom = vec3(0.0);
-    const int SAMPLES = 12; // Reduced from 16 for performance
-    float radius = 0.015 * intensity;
-    float weightSum = 0.0;
-    
-    // Sample in radial pattern with distance-based weighting
-    for (int i = 0; i < SAMPLES; i++) {
-      float angle = (float(i) / float(SAMPLES)) * 6.28318;
-      float dist = radius * (0.5 + float(i) / float(SAMPLES) * 0.5);
-      vec2 offset = vec2(cos(angle), sin(angle)) * dist;
-      vec3 sample = texture2D(u_image, uv + offset).rgb;
-      
-      // Only bright areas contribute to halation
-      float brightness = max(max(sample.r, sample.g), sample.b);
-      if (brightness > 0.75) {
-        // Radial falloff weight
-        float weight = 1.0 / (1.0 + dist * 50.0);
-        float contribution = (brightness - 0.75) * 4.0 * weight;
-        bloom += sample * contribution;
-        weightSum += weight;
-      }
-    }
-    
-    if (weightSum > 0.0) {
-      bloom /= weightSum;
-    }
-    
-    // Red halation characteristic of CineStill (remjet removed)
-    bloom.r *= 1.6;
-    bloom.g *= 0.75;
-    bloom.b *= 0.55;
-    
-    return bloom * 0.25;
-  }
-  
-  // Black and white conversion with color channel weighting
-  vec3 toBlackAndWhite(vec3 color) {
-    // Classic black and white film sensitivity
-    float luma = dot(color, vec3(0.3, 0.59, 0.11));
-    return vec3(luma);
-  }
-  
-  // RGB to HSV
-  vec3 rgb2hsv(vec3 c) {
-    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
-    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
-    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
-    
-    float d = q.x - min(q.w, q.y);
-    float e = 1.0e-10;
-    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
-  }
-  
-  // HSV to RGB
-  vec3 hsv2rgb(vec3 c) {
-    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
-  }
-  
-  // Gamma correction (linear to sRGB)
-  vec3 linearToSRGB(vec3 linear) {
-    return mix(
-      linear * 12.92,
-      pow(linear, vec3(1.0 / 2.4)) * 1.055 - 0.055,
-      step(0.0031308, linear)
-    );
-  }
-  
-  void main() {
-    vec2 uv = v_texCoord;
-    vec3 originalColor = texture2D(u_image, uv).rgb;
-    vec3 color = originalColor;
-    
-    // Convert to linear space for processing
-    // (assuming input is sRGB, convert to linear)
-    color = pow(color, vec3(2.2));
-    
-    // Apply halation first (samples original image before processing)
-    if (u_halation > 0.0) {
-      vec3 halation = applyHalation(uv, u_halation);
-      color += halation;
-    }
-    
-    // Black and white conversion before color curves for B&W films
-    if (u_blackAndWhite > 0.5) {
-      color = toBlackAndWhite(color);
-    }
-    
-    // Apply color curves for film response (only for color films)
-    if (u_blackAndWhite < 0.5) {
-      color = applyColorCurves(color, u_redCurve, u_greenCurve, u_blueCurve);
-    }
-    
-    // Warmth adjustment (color temperature shift)
-    if (u_warmth != 0.0 && u_blackAndWhite < 0.5) {
-      // More realistic color temperature shift
-      float tempShift = u_warmth * 0.15;
-      color.r = color.r + tempShift;
-      color.g = color.g + tempShift * 0.3;
-      color.b = color.b - tempShift * 0.7;
-    }
-    
-    // Saturation (only for color films)
-    if (u_blackAndWhite < 0.5) {
-      vec3 hsv = rgb2hsv(color);
-      hsv.y *= u_saturation;
-      color = hsv2rgb(hsv);
-    }
-    
-    // Contrast with S-curve
-    color.r = applySCurve(color.r, u_contrast);
-    color.g = applySCurve(color.g, u_contrast);
-    color.b = applySCurve(color.b, u_contrast);
-    
-    // Highlight and shadow adjustments
-    color = adjustTones(color, u_highlights, u_shadows);
-    
-    // Apply film grain (with chroma for color films)
-    color = applyGrain(color, uv, u_grain, u_grainSize, u_blackAndWhite);
-    
-    // Convert back to sRGB for display
-    color = linearToSRGB(color);
-    
-    // Clamp to valid range
-    color = clamp(color, 0.0, 1.0);
-    
-    gl_FragColor = vec4(color, 1.0);
-  }
-`;
-
-export class FilmWebGL {
-  private gl: WebGLRenderingContext | null = null;
-  private program: WebGLProgram | null = null;
-  private sourceTexture: WebGLTexture | null = null;
-  private positionBuffer: WebGLBuffer | null = null;
-  private texCoordBuffer: WebGLBuffer | null = null;
-  private startTime: number = Date.now();
-  private currentFilmStock: FilmStock = 'kodak-portra-400';
-  // Cache uniform locations for performance
-  private uniformLocations: Map<string, WebGLUniformLocation | null> =
-    new Map();
-  private attributeLocations: Map<string, number> = new Map();
-
-  constructor(private canvas: HTMLCanvasElement) {
-    this.initialize();
-  }
-
-  private initialize(): boolean {
-    const gl = this.canvas.getContext('webgl', {
-      alpha: false,
-      depth: false,
-      stencil: false,
-      antialias: false,
-      premultipliedAlpha: false,
-      preserveDrawingBuffer: true,
-    });
-
-    if (!gl) {
-      console.error('WebGL not supported');
-      return false;
-    }
-
-    this.gl = gl;
-
-    // Create shader program
-    const vertexShader = this.createShader(gl.VERTEX_SHADER, VERTEX_SHADER);
-    const fragmentShader = this.createShader(
-      gl.FRAGMENT_SHADER,
-      FRAGMENT_SHADER,
-    );
-
-    if (!vertexShader || !fragmentShader) {
-      return false;
-    }
-
-    this.program = this.createProgram(vertexShader, fragmentShader);
-
-    if (!this.program) {
-      return false;
-    }
-
-    // Cache uniform and attribute locations for performance
-    this.cacheLocations();
-
-    // Set up geometry buffers
-    this.setupBuffers();
-
-    return true;
-  }
-
-  private createShader(type: number, source: string): WebGLShader | null {
-    if (!this.gl) return null;
-
-    const shader = this.gl.createShader(type);
-    if (!shader) return null;
-
-    this.gl.shaderSource(shader, source);
-    this.gl.compileShader(shader);
-
-    if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
-      console.error(
-        'Shader compilation error:',
-        this.gl.getShaderInfoLog(shader),
-      );
-      this.gl.deleteShader(shader);
-      return null;
-    }
-
-    return shader;
-  }
-
-  private createProgram(
-    vertexShader: WebGLShader,
-    fragmentShader: WebGLShader,
-  ): WebGLProgram | null {
-    if (!this.gl) return null;
-
-    const program = this.gl.createProgram();
-    if (!program) return null;
-
-    this.gl.attachShader(program, vertexShader);
-    this.gl.attachShader(program, fragmentShader);
-    this.gl.linkProgram(program);
-
-    if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
-      console.error(
-        'Program linking error:',
-        this.gl.getProgramInfoLog(program),
-      );
-      this.gl.deleteProgram(program);
-      return null;
-    }
-
-    return program;
-  }
-
-  private cacheLocations(): void {
-    if (!this.gl || !this.program) return;
-
-    // Cache uniform locations
-    const uniformNames = [
-      'u_image',
-      'u_resolution',
-      'u_grain',
-      'u_contrast',
-      'u_saturation',
-      'u_warmth',
-      'u_highlights',
-      'u_shadows',
-      'u_redCurve',
-      'u_greenCurve',
-      'u_blueCurve',
-      'u_halation',
-      'u_blackAndWhite',
-      'u_grainSize',
-      'u_time',
-    ];
-
-    uniformNames.forEach(name => {
-      this.uniformLocations.set(
-        name,
-        this.gl!.getUniformLocation(this.program!, name),
-      );
-    });
-
-    // Cache attribute locations
-    this.attributeLocations.set(
-      'a_position',
-      this.gl.getAttribLocation(this.program!, 'a_position'),
-    );
-    this.attributeLocations.set(
-      'a_texCoord',
-      this.gl.getAttribLocation(this.program!, 'a_texCoord'),
-    );
-  }
-
-  private setupBuffers(): void {
-    if (!this.gl) return;
-
-    // Position buffer (full screen quad)
-    const positions = new Float32Array([
-      -1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1,
-    ]);
-
-    this.positionBuffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, positions, this.gl.STATIC_DRAW);
-
-    // Texture coordinate buffer
-    const texCoords = new Float32Array([0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0]);
-
-    this.texCoordBuffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.texCoordBuffer);
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, texCoords, this.gl.STATIC_DRAW);
-  }
-
-  public loadImage(image: HTMLImageElement): void {
-    if (!this.gl) return;
-
-    // Create texture
-    this.sourceTexture = this.gl.createTexture();
-    this.gl.bindTexture(this.gl.TEXTURE_2D, this.sourceTexture);
-
-    // Set texture parameters for high quality
-    this.gl.texParameteri(
-      this.gl.TEXTURE_2D,
-      this.gl.TEXTURE_WRAP_S,
-      this.gl.CLAMP_TO_EDGE,
-    );
-    this.gl.texParameteri(
-      this.gl.TEXTURE_2D,
-      this.gl.TEXTURE_WRAP_T,
-      this.gl.CLAMP_TO_EDGE,
-    );
-    this.gl.texParameteri(
-      this.gl.TEXTURE_2D,
-      this.gl.TEXTURE_MIN_FILTER,
-      this.gl.LINEAR,
-    );
-    this.gl.texParameteri(
-      this.gl.TEXTURE_2D,
-      this.gl.TEXTURE_MAG_FILTER,
-      this.gl.LINEAR,
-    );
-
-    // Upload image
-    this.gl.texImage2D(
-      this.gl.TEXTURE_2D,
-      0,
-      this.gl.RGBA,
-      this.gl.RGBA,
-      this.gl.UNSIGNED_BYTE,
-      image,
-    );
-
-    // Set canvas size to match image
-    this.canvas.width = image.width;
-    this.canvas.height = image.height;
-    this.gl.viewport(0, 0, image.width, image.height);
-  }
-
-  public setFilmStock(filmStock: FilmStock): void {
-    this.currentFilmStock = filmStock;
-    this.render();
-  }
-
-  public render(): void {
-    if (!this.gl || !this.program || !this.sourceTexture) return;
-
-    const characteristics = FILM_CHARACTERISTICS[this.currentFilmStock];
-
-    this.gl.useProgram(this.program);
-
-    // Set up attributes using cached locations
-    const positionLocation = this.attributeLocations.get('a_position')!;
-    const texCoordLocation = this.attributeLocations.get('a_texCoord')!;
-
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
-    this.gl.enableVertexAttribArray(positionLocation);
-    this.gl.vertexAttribPointer(
-      positionLocation,
-      2,
-      this.gl.FLOAT,
-      false,
-      0,
-      0,
-    );
-
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.texCoordBuffer);
-    this.gl.enableVertexAttribArray(texCoordLocation);
-    this.gl.vertexAttribPointer(
-      texCoordLocation,
-      2,
-      this.gl.FLOAT,
-      false,
-      0,
-      0,
-    );
-
-    // Set uniforms using cached locations
-    const loc = (name: string) => this.uniformLocations.get(name);
-
-    this.gl.uniform1i(loc('u_image')!, 0);
-    this.gl.uniform2f(
-      loc('u_resolution')!,
-      this.canvas.width,
-      this.canvas.height,
-    );
-    this.gl.uniform1f(loc('u_grain')!, characteristics.grain);
-    this.gl.uniform1f(loc('u_contrast')!, characteristics.contrast);
-    this.gl.uniform1f(loc('u_saturation')!, characteristics.saturation);
-    this.gl.uniform1f(loc('u_warmth')!, characteristics.warmth);
-    this.gl.uniform1f(loc('u_highlights')!, characteristics.highlights);
-    this.gl.uniform1f(loc('u_shadows')!, characteristics.shadows);
-    this.gl.uniform3fv(loc('u_redCurve')!, characteristics.redCurve);
-    this.gl.uniform3fv(loc('u_greenCurve')!, characteristics.greenCurve);
-    this.gl.uniform3fv(loc('u_blueCurve')!, characteristics.blueCurve);
-    this.gl.uniform1f(loc('u_halation')!, characteristics.halation);
-    this.gl.uniform1f(
-      loc('u_blackAndWhite')!,
-      characteristics.blackAndWhite ? 1.0 : 0.0,
-    );
-    this.gl.uniform1f(loc('u_grainSize')!, characteristics.grainSize);
-    this.gl.uniform1f(loc('u_time')!, Date.now() - this.startTime);
-
-    // Bind texture
-    this.gl.activeTexture(this.gl.TEXTURE0);
-    this.gl.bindTexture(this.gl.TEXTURE_2D, this.sourceTexture);
-
-    // Draw
-    this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
-  }
-
-  public dispose(): void {
-    if (!this.gl) return;
-
-    if (this.sourceTexture) {
-      this.gl.deleteTexture(this.sourceTexture);
-      this.sourceTexture = null;
-    }
-
-    if (this.positionBuffer) {
-      this.gl.deleteBuffer(this.positionBuffer);
-      this.positionBuffer = null;
-    }
-
-    if (this.texCoordBuffer) {
-      this.gl.deleteBuffer(this.texCoordBuffer);
-      this.texCoordBuffer = null;
-    }
-
-    if (this.program) {
-      this.gl.deleteProgram(this.program);
-      this.program = null;
-    }
-
-    // Clear caches
-    this.uniformLocations.clear();
-    this.attributeLocations.clear();
-
-    this.gl = null;
-  }
-
-  public getAvailableFilmStocks(): Array<{ id: FilmStock; name: string }> {
-    return Object.entries(FILM_CHARACTERISTICS).map(([id, char]) => ({
-      id: id as FilmStock,
-      name: char.name,
-    }));
-  }
-
-  public getCurrentFilmStock(): FilmStock {
-    return this.currentFilmStock;
-  }
-
-  public exportToDataURL(quality: number = 0.95): string {
-    return this.canvas.toDataURL('image/png', quality);
-  }
-
-  public exportToBlob(
-    callback: (blob: Blob | null) => void,
-    quality: number = 0.95,
-  ): void {
-    this.canvas.toBlob(callback, 'image/png', quality);
-  }
-}
-
-// Helper function to create and initialize FilmWebGL instance
-export function createFilmRenderer(
+export function applyFilmShader(
   canvas: HTMLCanvasElement,
   image: HTMLImageElement,
-  filmStock: FilmStock = 'kodak-portra-400',
-): FilmWebGL {
-  const renderer = new FilmWebGL(canvas);
-  renderer.loadImage(image);
-  renderer.setFilmStock(filmStock);
-  return renderer;
+  preset: FilmPresetName,
+): void;
+export function applyFilmShader(
+  canvas: HTMLCanvasElement,
+  image: HTMLImageElement,
+  parameters: Partial<FilmParameters>,
+): void;
+export function applyFilmShader(
+  canvas: HTMLCanvasElement,
+  image: HTMLImageElement,
+  grainIntensity: number,
+  warmth: number,
+  contrast: number,
+  vignette: number,
+  fade: number,
+  halation: number,
+  bloom: number,
+  saturation: number,
+): void;
+export function applyFilmShader(
+  canvas: HTMLCanvasElement,
+  image: HTMLImageElement,
+  presetOrGrainOrParams:
+    | FilmPresetName
+    | Partial<FilmParameters>
+    | number = 0.1,
+  warmth: number = 0.5,
+  contrast: number = 0.0,
+  vignette: number = 0.0,
+  fade: number = 0.0,
+  halation: number = 0.0,
+  bloom: number = 0.0,
+  saturation: number = 1.0,
+): void {
+  let params: FilmParameters;
+
+  // Determine which API was used
+  if (typeof presetOrGrainOrParams === 'string') {
+    // Preset name provided
+    params = FILM_PRESETS[presetOrGrainOrParams];
+  } else if (typeof presetOrGrainOrParams === 'object') {
+    // Parameters object provided
+    const defaults: FilmParameters = {
+      grainIntensity: 0.1,
+      warmth: 0.5,
+      contrast: 0.0,
+      vignette: 0.0,
+      fade: 0.0,
+      halation: 0.0,
+      bloom: 0.0,
+      saturation: 1.0,
+    };
+    params = { ...defaults, ...presetOrGrainOrParams };
+  } else {
+    // Individual parameters provided
+    params = {
+      grainIntensity: presetOrGrainOrParams,
+      warmth,
+      contrast,
+      vignette,
+      fade,
+      halation,
+      bloom,
+      saturation,
+    };
+  }
+  const gl = canvas.getContext('webgl');
+  if (!gl) {
+    console.error('WebGL not supported');
+    return;
+  }
+
+  // Vertex shader - just positions the texture
+  const vertexShaderSource = `
+    attribute vec2 a_position;
+    attribute vec2 a_texCoord;
+    varying vec2 v_texCoord;
+    
+    void main() {
+      gl_Position = vec4(a_position, 0.0, 1.0);
+      v_texCoord = a_texCoord;
+    }
+  `;
+
+  // Fragment shader - complete film emulation with halation and bloom
+  const fragmentShaderSource = `
+    precision mediump float;
+    varying vec2 v_texCoord;
+    uniform sampler2D u_image;
+    uniform float u_time;
+    uniform float u_grainIntensity;
+    uniform float u_warmth;
+    uniform float u_contrast;
+    uniform float u_vignette;
+    uniform float u_fade;
+    uniform float u_halation;
+    uniform float u_bloom;
+    uniform float u_saturation;
+    uniform vec2 u_resolution;
+    
+    // Simple pseudo-random function for grain
+    float random(vec2 co) {
+      return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+    }
+    
+    // S-curve for contrast adjustment
+    // Brightens highlights, deepens shadows
+    float applySCurve(float x, float strength) {
+      if (strength == 0.0) return x;
+      
+      // Simple S-curve using smoothstep-like function
+      float curved = x * x * (3.0 - 2.0 * x); // Basic S-curve
+      return mix(x, curved, strength);
+    }
+    
+    void main() {
+      vec4 color = texture2D(u_image, v_texCoord);
+      
+      // Apply halation (red/orange glow around bright areas)
+      if (u_halation > 0.0) {
+        // Sample surrounding pixels to create glow effect
+        vec2 texelSize = 1.0 / u_resolution;
+        vec3 glow = vec3(0.0);
+        float totalBrightness = 0.0;
+        
+        // Sample in a small radius around current pixel
+        // Using constant loop bounds (WebGL requirement)
+        for (int x = -3; x <= 3; x++) {
+          for (int y = -3; y <= 3; y++) {
+            vec2 offset = vec2(float(x), float(y)) * texelSize * 2.0;
+            vec4 sample = texture2D(u_image, v_texCoord + offset);
+            
+            // Calculate brightness
+            float brightness = dot(sample.rgb, vec3(0.299, 0.587, 0.114));
+            
+            // Only bright areas contribute to halation
+            if (brightness > 0.7) {
+              float dist = length(vec2(float(x), float(y)));
+              float falloff = 1.0 - dist / 3.0;
+              totalBrightness += (brightness - 0.7) * falloff;
+            }
+          }
+        }
+        
+        // Create red-orange halation glow
+        if (totalBrightness > 0.0) {
+          glow = vec3(1.0, 0.3, 0.1) * totalBrightness * u_halation * 0.3;
+          color.rgb += glow;
+        }
+      }
+      
+      // Apply bloom (soft color-preserving glow around bright areas)
+      if (u_bloom > 0.0) {
+        vec2 texelSize = 1.0 / u_resolution;
+        vec3 bloomGlow = vec3(0.0);
+        
+        // Sample in a slightly larger radius for softer bloom
+        for (int x = -4; x <= 4; x++) {
+          for (int y = -4; y <= 4; y++) {
+            vec2 offset = vec2(float(x), float(y)) * texelSize * 1.5;
+            vec4 sample = texture2D(u_image, v_texCoord + offset);
+            
+            // Calculate brightness
+            float brightness = dot(sample.rgb, vec3(0.299, 0.587, 0.114));
+            
+            // Lower threshold for bloom (affects more areas)
+            if (brightness > 0.6) {
+              float dist = length(vec2(float(x), float(y)));
+              float falloff = 1.0 - dist / 4.0;
+              // Preserve the color of the bright area
+              bloomGlow += sample.rgb * (brightness - 0.6) * falloff;
+            }
+          }
+        }
+        
+        // Add soft color-preserving bloom
+        color.rgb += bloomGlow * u_bloom * 0.15;
+      }
+      
+      // Apply contrast S-curve per channel
+      color.r = applySCurve(color.r, u_contrast);
+      color.g = applySCurve(color.g, u_contrast);
+      color.b = applySCurve(color.b, u_contrast);
+      
+      // Apply saturation (0.0 = B&W, 1.0 = full color, >1.0 = oversaturated)
+      if (u_saturation != 1.0) {
+        // Calculate luminance (grayscale value)
+        float luminance = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+        // Mix between grayscale and original color based on saturation
+        color.rgb = mix(vec3(luminance), color.rgb, u_saturation);
+      }
+      
+      // Apply color shift based on warmth (0.5 = neutral)
+      // warmth > 0.5: warmer (more red/yellow, less blue)
+      // warmth < 0.5: cooler (more blue, less red/yellow)
+      float warmthShift = (u_warmth - 0.5) * 0.2; // Scale to reasonable range
+      color.r *= 1.0 + warmthShift;
+      color.g *= 1.0 + warmthShift * 0.5;
+      color.b *= 1.0 - warmthShift;
+      
+      // Apply fade (lift blacks) - characteristic of film
+      // Prevents pure black, adds that faded vintage look
+      if (u_fade > 0.0) {
+        color.rgb = mix(color.rgb, color.rgb + vec3(u_fade * 0.15), u_fade);
+      }
+      
+      // Apply vignette (darkening at edges)
+      if (u_vignette > 0.0) {
+        // Calculate distance from center
+        vec2 center = vec2(0.5, 0.5);
+        float dist = distance(v_texCoord, center);
+        
+        // Create smooth falloff from center to edges
+        float vignetteFactor = smoothstep(0.8, 0.3, dist);
+        vignetteFactor = mix(1.0, vignetteFactor, u_vignette);
+        
+        color.rgb *= vignetteFactor;
+      }
+      
+      // Add grain with dynamic intensity
+      float grain = random(v_texCoord * u_time) * u_grainIntensity;
+      color.rgb += grain;
+      
+      gl_FragColor = color;
+    }
+  `;
+
+  // Compile shaders
+  const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+  const fragmentShader = createShader(
+    gl,
+    gl.FRAGMENT_SHADER,
+    fragmentShaderSource,
+  );
+
+  if (!vertexShader || !fragmentShader) return;
+
+  // Create program
+  const program = createProgram(gl, vertexShader, fragmentShader);
+  if (!program) return;
+
+  // Set up positions (full canvas rectangle)
+  const positions = new Float32Array([
+    -1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1,
+  ]);
+
+  const positionBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+
+  // Set up texture coordinates
+  const texCoords = new Float32Array([0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0]);
+
+  const texCoordBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
+
+  // Create texture from image
+  const texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+  // Use program and set attributes
+  gl.useProgram(program);
+
+  const positionLocation = gl.getAttribLocation(program, 'a_position');
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  gl.enableVertexAttribArray(positionLocation);
+  gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+  const texCoordLocation = gl.getAttribLocation(program, 'a_texCoord');
+  gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+  gl.enableVertexAttribArray(texCoordLocation);
+  gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+
+  // Set uniforms
+  const timeLocation = gl.getUniformLocation(program, 'u_time');
+  gl.uniform1f(timeLocation, Math.random() * 100);
+
+  const grainIntensityLocation = gl.getUniformLocation(
+    program,
+    'u_grainIntensity',
+  );
+  gl.uniform1f(grainIntensityLocation, params.grainIntensity);
+
+  const warmthLocation = gl.getUniformLocation(program, 'u_warmth');
+  gl.uniform1f(warmthLocation, params.warmth);
+
+  const contrastLocation = gl.getUniformLocation(program, 'u_contrast');
+  gl.uniform1f(contrastLocation, params.contrast);
+
+  const vignetteLocation = gl.getUniformLocation(program, 'u_vignette');
+  gl.uniform1f(vignetteLocation, params.vignette);
+
+  const fadeLocation = gl.getUniformLocation(program, 'u_fade');
+  gl.uniform1f(fadeLocation, params.fade);
+
+  const halationLocation = gl.getUniformLocation(program, 'u_halation');
+  gl.uniform1f(halationLocation, params.halation);
+
+  const bloomLocation = gl.getUniformLocation(program, 'u_bloom');
+  gl.uniform1f(bloomLocation, params.bloom);
+
+  const saturationLocation = gl.getUniformLocation(program, 'u_saturation');
+  gl.uniform1f(saturationLocation, params.saturation);
+
+  const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
+  gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+
+  // Draw
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.clearColor(0, 0, 0, 0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
 }
 
-// Helper to get all available film stocks
-export function getFilmStocks(): Array<{
-  id: FilmStock;
-  name: string;
-  type: string;
-}> {
-  return Object.entries(FILM_CHARACTERISTICS).map(([id, char]) => ({
-    id: id as FilmStock,
-    name: char.name,
-    type: char.blackAndWhite ? 'Black & White' : 'Color',
-  }));
+function createShader(
+  gl: WebGLRenderingContext,
+  type: number,
+  source: string,
+): WebGLShader | null {
+  const shader = gl.createShader(type);
+  if (!shader) return null;
+
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    console.error('Shader compilation error:', gl.getShaderInfoLog(shader));
+    gl.deleteShader(shader);
+    return null;
+  }
+
+  return shader;
+}
+
+function createProgram(
+  gl: WebGLRenderingContext,
+  vertexShader: WebGLShader,
+  fragmentShader: WebGLShader,
+): WebGLProgram | null {
+  const program = gl.createProgram();
+  if (!program) return null;
+
+  gl.attachShader(program, vertexShader);
+  gl.attachShader(program, fragmentShader);
+  gl.linkProgram(program);
+
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    console.error('Program linking error:', gl.getProgramInfoLog(program));
+    gl.deleteProgram(program);
+    return null;
+  }
+
+  return program;
 }
