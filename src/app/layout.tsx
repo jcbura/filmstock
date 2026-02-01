@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Barlow, Geist, Geist_Mono } from 'next/font/google';
 import '@/styles/globals.css';
+import { Footer } from '@/components';
 import { ThemeProvider } from '@/providers';
 
 const barlow = Barlow({
@@ -44,9 +45,7 @@ const RootLayout = ({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="bg-background relative flex h-svh flex-col">
-            <main className="flex-1 overflow-hidden">{children}</main>
-          </div>
+          {children}
         </ThemeProvider>
       </body>
     </html>

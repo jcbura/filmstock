@@ -19,7 +19,9 @@ const CanvasImage = ({ file }: { file: File }) => {
       canvas.width = img.width;
       canvas.height = img.height;
 
-      applyFilmShader(canvas, img, { grainIntensity: 0.15, warmth: 0.65 });
+      applyFilmShader(canvas, img, {
+        grainIntensity: 0.18,
+      });
 
       URL.revokeObjectURL(imageUrl);
     };
@@ -34,7 +36,7 @@ const CanvasImage = ({ file }: { file: File }) => {
   return (
     <canvas
       ref={canvasRef}
-      className="max-h-[calc(100vh-10rem)] max-w-[calc(100vw-4rem)] object-contain select-none sm:max-w-full"
+      className="max-h-[calc(100vh-14rem)] max-w-[calc(100vw-4rem)] object-contain select-none sm:max-w-full"
     />
   );
 };
@@ -153,7 +155,7 @@ export const Editor = ({
             <img
               src={imageUrl}
               alt="original"
-              className="max-h-[calc(100vh-10rem)] max-w-[calc(100vw-4rem)] object-contain select-none sm:max-w-full"
+              className="max-h-[calc(100vh-14rem)] max-w-[calc(100vw-4rem)] object-contain select-none sm:max-w-full"
             />
             <div
               className="absolute inset-0 overflow-hidden"

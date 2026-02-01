@@ -1,6 +1,6 @@
 'use client';
 
-import { DragAndDrop, Editor } from '@/components';
+import { DragAndDrop, Editor, Footer } from '@/components';
 import { useState } from 'react';
 
 const Home = () => {
@@ -10,10 +10,19 @@ const Home = () => {
     setFile(selectedFile);
   };
 
-  return file ? (
-    <Editor file={file} setFile={setFile} />
-  ) : (
-    <DragAndDrop onFileSelected={handleFileSelected} />
+  return (
+    <>
+      <div className="bg-background flex h-svh max-w-full flex-col overflow-hidden">
+        <main className="flex-1 overflow-hidden">
+          {file ? (
+            <Editor file={file} setFile={setFile} />
+          ) : (
+            <DragAndDrop onFileSelected={handleFileSelected} />
+          )}
+        </main>
+        <Footer isFileSelected={!!file} />
+      </div>
+    </>
   );
 };
 
