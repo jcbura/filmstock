@@ -1,12 +1,14 @@
 'use client';
 
 import { Button } from '@/components';
+import { useEditor } from '@/contexts';
 import { applyFilmShader } from '@/utils';
 import { CaretUpDownIcon, XIcon } from '@phosphor-icons/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const CanvasImage = ({ file }: { file: File }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { parameters } = useEditor();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -20,7 +22,7 @@ const CanvasImage = ({ file }: { file: File }) => {
       canvas.height = img.height;
 
       applyFilmShader(canvas, img, {
-        grainIntensity: 0.18,
+        ...parameters,
       });
 
       URL.revokeObjectURL(imageUrl);
@@ -31,7 +33,7 @@ const CanvasImage = ({ file }: { file: File }) => {
     return () => {
       URL.revokeObjectURL(imageUrl);
     };
-  }, [file]);
+  }, [file, parameters]);
 
   return (
     <canvas

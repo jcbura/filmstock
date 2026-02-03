@@ -10,6 +10,7 @@ export interface FilmParameters {
 }
 
 export type FilmPresetName =
+  | 'custom'
   | 'kodak-portra'
   | 'fuji-velvia'
   | 'cinestill-800t'
@@ -19,6 +20,16 @@ export type FilmPresetName =
   | 'kodak-tri-x';
 
 export const FILM_PRESETS: Record<FilmPresetName, FilmParameters> = {
+  custom: {
+    grainIntensity: 0.15,
+    warmth: 0.5,
+    contrast: 0.0,
+    vignette: 0.0,
+    fade: 0.0,
+    halation: 0.0,
+    bloom: 0.0,
+    saturation: 1.0,
+  },
   'kodak-portra': {
     grainIntensity: 0.08,
     warmth: 0.62,

@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Button,
   H1,
@@ -7,16 +9,45 @@ import {
   NativeSelectOption,
   ThemeToggle,
 } from '@/components';
-import { FILM_PRESETS } from '@/utils';
+import { useEditor } from '@/contexts';
+import { FILM_PRESETS, FilmParameters, FilmPresetName } from '@/utils';
 import { DownloadSimpleIcon } from '@phosphor-icons/react/dist/ssr';
 
-const presets = Object.keys(FILM_PRESETS);
+const PRESET_OPTIONS = Object.keys(FILM_PRESETS) as FilmPresetName[];
+
+const PARAMETER_CONFIG: Array<{
+  key: keyof FilmParameters;
+  label: string;
+  min: number;
+  max: number;
+  step: number;
+}> = [
+  { key: 'grainIntensity', label: 'grain', min: 0, max: 1, step: 0.01 },
+  { key: 'warmth', label: 'warmth', min: 0, max: 1, step: 0.01 },
+  { key: 'saturation', label: 'saturation', min: 0, max: 1.5, step: 0.01 },
+  { key: 'vignette', label: 'vignette', min: 0, max: 1, step: 0.01 },
+  { key: 'fade', label: 'fade', min: 0, max: 1, step: 0.01 },
+  { key: 'contrast', label: 'contrast', min: 0, max: 1, step: 0.01 },
+  { key: 'halation', label: 'halation', min: 0, max: 1, step: 0.01 },
+  { key: 'bloom', label: 'bloom', min: 0, max: 1, step: 0.01 },
+];
 
 export const Footer = ({
   isFileSelected = false,
 }: {
   isFileSelected?: boolean;
 }) => {
+  const { parameters, updateParameter, currentPreset, applyPreset } =
+    useEditor();
+
+  const handlePresetChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    applyPreset(event.target.value as FilmPresetName);
+  };
+
+  const handleParameterChange = (key: keyof FilmParameters, value: string) => {
+    updateParameter(key, parseFloat(value));
+  };
+
   return (
     <footer className="bg-accent dark:bg-input/30 flex min-h-16 flex-col gap-2 border-t p-2 sm:px-4">
       <div className="flex w-full items-center justify-between">
@@ -27,47 +58,32 @@ export const Footer = ({
         <div className="flex flex-wrap items-center gap-2 border-t pt-2">
           <div className="flex items-center gap-2">
             <Label htmlFor="preset">preset</Label>
-            <NativeSelect id="preset" defaultValue="custom">
-              <NativeSelectOption value="">custom</NativeSelectOption>
-              {presets.map(preset => (
+            <NativeSelect
+              id="preset"
+              value={currentPreset}
+              onChange={handlePresetChange}
+            >
+              {PRESET_OPTIONS.map(preset => (
                 <NativeSelectOption key={preset} value={preset}>
                   {preset}
                 </NativeSelectOption>
               ))}
             </NativeSelect>
           </div>
-          <div className="flex items-center gap-2">
-            <Label htmlFor="grain">grain</Label>
-            <Input id="grain" type="number" step={0.01} min={0} max={1} />
-          </div>
-          <div className="flex items-center gap-2">
-            <Label htmlFor="warmth">warmth</Label>
-            <Input id="warmth" type="number" step={0.01} min={0} max={1} />
-          </div>
-          <div className="flex items-center gap-2">
-            <Label htmlFor="contrast">contrast</Label>
-            <Input id="contrast" type="number" step={0.01} min={0} max={1} />
-          </div>
-          <div className="flex items-center gap-2">
-            <Label htmlFor="saturation">saturation</Label>
-            <Input id="saturation" type="number" step={0.01} min={0} max={1} />
-          </div>
-          <div className="flex items-center gap-2">
-            <Label htmlFor="vignette">vignette</Label>
-            <Input id="vignette" type="number" step={0.01} min={0} max={1} />
-          </div>
-          <div className="flex items-center gap-2">
-            <Label htmlFor="fade">fade</Label>
-            <Input id="fade" type="number" step={0.01} min={0} max={1} />
-          </div>
-          <div className="flex items-center gap-2">
-            <Label htmlFor="halation">halation</Label>
-            <Input id="halation" type="number" step={0.01} min={0} max={1} />
-          </div>
-          <div className="flex items-center gap-2">
-            <Label htmlFor="bloom">bloom</Label>
-            <Input id="bloom" type="number" step={0.01} min={0} max={1} />
-          </div>
+          {PARAMETER_CONFIG.map(({ key, label, min, max, step }) => (
+            <div key={key} className="flex items-center gap-2">
+              <Label htmlFor={key}>{label}</Label>
+              <Input
+                id={key}
+                type="number"
+                step={step}
+                min={min}
+                max={max}
+                value={parameters[key]}
+                onChange={e => handleParameterChange(key, e.target.value)}
+              />
+            </div>
+          ))}
           <Button size="icon-sm">
             <span className="sr-only">Download</span>
             <DownloadSimpleIcon />

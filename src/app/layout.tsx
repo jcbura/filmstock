@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Barlow, Geist, Geist_Mono } from 'next/font/google';
 import '@/styles/globals.css';
-import { Footer } from '@/components';
+import { EditorProvider } from '@/contexts';
 import { ThemeProvider } from '@/providers';
 
 const barlow = Barlow({
@@ -45,7 +45,7 @@ const RootLayout = ({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <EditorProvider>{children}</EditorProvider>
         </ThemeProvider>
       </body>
     </html>
