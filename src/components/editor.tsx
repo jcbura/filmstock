@@ -7,8 +7,7 @@ import { CaretUpDownIcon, XIcon } from '@phosphor-icons/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const CanvasImage = ({ file }: { file: File }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { parameters } = useEditor();
+  const { canvasRef, parameters } = useEditor();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -33,7 +32,7 @@ const CanvasImage = ({ file }: { file: File }) => {
     return () => {
       URL.revokeObjectURL(imageUrl);
     };
-  }, [file, parameters]);
+  }, [canvasRef, file, parameters]);
 
   return (
     <canvas

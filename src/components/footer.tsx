@@ -37,8 +37,13 @@ export const Footer = ({
 }: {
   isFileSelected?: boolean;
 }) => {
-  const { parameters, updateParameter, currentPreset, applyPreset } =
-    useEditor();
+  const {
+    parameters,
+    updateParameter,
+    currentPreset,
+    applyPreset,
+    downloadImage,
+  } = useEditor();
 
   const handlePresetChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     applyPreset(event.target.value as FilmPresetName);
@@ -84,7 +89,7 @@ export const Footer = ({
               />
             </div>
           ))}
-          <Button size="icon-sm">
+          <Button size="icon-sm" onClick={downloadImage}>
             <span className="sr-only">Download</span>
             <DownloadSimpleIcon />
           </Button>

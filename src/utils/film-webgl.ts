@@ -171,7 +171,7 @@ export function applyFilmShader(
       saturation,
     };
   }
-  const gl = canvas.getContext('webgl');
+  const gl = canvas.getContext('webgl', { preserveDrawingBuffer: true });
   if (!gl) {
     console.error('WebGL not supported');
     return;

@@ -1,10 +1,10 @@
 'use client';
 
 import { DragAndDrop, Editor, Footer } from '@/components';
-import { useState } from 'react';
+import { useEditor } from '@/contexts';
 
 const Home = () => {
-  const [file, setFile] = useState<File | null>(null);
+  const { file, setFile } = useEditor();
 
   const handleFileSelected = (selectedFile: File) => {
     setFile(selectedFile);
