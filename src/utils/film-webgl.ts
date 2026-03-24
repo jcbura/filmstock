@@ -7,6 +7,7 @@ export interface FilmParameters {
   halation: number;
   bloom: number;
   saturation: number;
+  exposure: number;
 }
 
 export type FilmPresetName =
@@ -29,6 +30,7 @@ export const FILM_PRESETS: Record<FilmPresetName, FilmParameters> = {
     halation: 0.0,
     bloom: 0.0,
     saturation: 1.0,
+    exposure: 0.9,
   },
   'kodak-portra': {
     grainIntensity: 0.08,
@@ -39,6 +41,7 @@ export const FILM_PRESETS: Record<FilmPresetName, FilmParameters> = {
     halation: 0.0,
     bloom: 0.2,
     saturation: 1.0,
+    exposure: 1,
   },
   'fuji-velvia': {
     grainIntensity: 0.05,
@@ -49,6 +52,7 @@ export const FILM_PRESETS: Record<FilmPresetName, FilmParameters> = {
     halation: 0.0,
     bloom: 0.15,
     saturation: 1.2, // Oversaturated for Velvia look
+    exposure: 1,
   },
   'cinestill-800t': {
     grainIntensity: 0.2,
@@ -59,6 +63,7 @@ export const FILM_PRESETS: Record<FilmPresetName, FilmParameters> = {
     halation: 0.8, // Heavy red halation - signature look
     bloom: 0.5,
     saturation: 1.0,
+    exposure: 1,
   },
   'kodak-gold': {
     grainIntensity: 0.15,
@@ -69,6 +74,7 @@ export const FILM_PRESETS: Record<FilmPresetName, FilmParameters> = {
     halation: 0.0,
     bloom: 0.25,
     saturation: 0.9,
+    exposure: 1,
   },
   'fuji-400h': {
     grainIntensity: 0.1,
@@ -79,6 +85,7 @@ export const FILM_PRESETS: Record<FilmPresetName, FilmParameters> = {
     halation: 0.0,
     bloom: 0.3,
     saturation: 0.85, // Slightly desaturated, pastel look
+    exposure: 1,
   },
   'ilford-hp5': {
     grainIntensity: 0.18,
@@ -89,6 +96,7 @@ export const FILM_PRESETS: Record<FilmPresetName, FilmParameters> = {
     halation: 0.0,
     bloom: 0.1,
     saturation: 0.0, // Full B&W
+    exposure: 1,
   },
   'kodak-tri-x': {
     grainIntensity: 0.22,
@@ -99,6 +107,7 @@ export const FILM_PRESETS: Record<FilmPresetName, FilmParameters> = {
     halation: 0.0,
     bloom: 0.0,
     saturation: 0.0, // Full B&W
+    exposure: 1,
   },
 };
 
@@ -138,6 +147,7 @@ export function applyFilmShader(
   halation: number = 0.0,
   bloom: number = 0.0,
   saturation: number = 1.0,
+  exposure: number = 1.0,
 ): void {
   let params: FilmParameters;
 
@@ -156,6 +166,7 @@ export function applyFilmShader(
       halation: 0.0,
       bloom: 0.0,
       saturation: 1.0,
+      exposure: 1.0,
     };
     params = { ...defaults, ...presetOrGrainOrParams };
   } else {
@@ -169,6 +180,7 @@ export function applyFilmShader(
       halation,
       bloom,
       saturation,
+      exposure,
     };
   }
   const gl = canvas.getContext('webgl', { preserveDrawingBuffer: true });
@@ -203,6 +215,7 @@ export function applyFilmShader(
     uniform float u_halation;
     uniform float u_bloom;
     uniform float u_saturation;
+    uniform float u_exposure;
     uniform vec2 u_resolution;
     
     // Simple pseudo-random function for grain
@@ -283,6 +296,9 @@ export function applyFilmShader(
         // Add soft color-preserving bloom
         color.rgb += bloomGlow * u_bloom * 0.15;
       }
+      
+      // Apply exposure
+      color.rgb *= u_exposure;
       
       // Apply contrast S-curve per channel
       color.r = applySCurve(color.r, u_contrast);
@@ -414,6 +430,9 @@ export function applyFilmShader(
 
   const saturationLocation = gl.getUniformLocation(program, 'u_saturation');
   gl.uniform1f(saturationLocation, params.saturation);
+
+  const exposureLocation = gl.getUniformLocation(program, 'u_exposure');
+  gl.uniform1f(exposureLocation, params.exposure);
 
   const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
   gl.uniform2f(resolutionLocation, canvas.width, canvas.height);

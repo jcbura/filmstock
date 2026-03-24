@@ -14,6 +14,7 @@ Transform your digital photos with authentic film photography effects using WebG
 - **Halation**: Red-orange glow around bright lights (film backing effect)
 - **Bloom**: Soft color-preserving glow for dreamy aesthetics
 - **Saturation Control**: Full color, desaturated, or black & white
+- **Exposure**: Linear brightness scaling
 
 ### Film Stock Presets
 
@@ -125,6 +126,7 @@ applyFilmShader(
   0.6, // halation
   0.4, // bloom
   1.0, // saturation
+  1.0, // exposure
 );
 ```
 
@@ -156,24 +158,14 @@ Filmulate uses WebGL fragment shaders to apply film effects directly on the GPU 
 2. **WebGL Context**: Canvas gets WebGL rendering context
 3. **Shader Compilation**: Vertex and fragment shaders are compiled
 4. **Effect Pipeline**: Effects are applied in optimal order:
-   - Halation & Bloom (glow effects)
-   - Contrast (S-curve)
-   - Saturation (color/B&W)
-   - Warmth (color temperature)
-   - Fade (lift blacks)
-   - Vignette (darken edges)
-   - Grain (texture)
+
+- Halation & Bloom (glow effects)
+- Contrast (S-curve)
+- Saturation (color/B&W)
+- Warmth (color temperature)
+- Fade (lift blacks)
+- Vignette (darken edges)
+- Grain (texture)
+- Exposure (brightness)
+
 5. **Real-time Preview**: Before/after slider shows original vs. processed
-
-## Film Effect Parameters
-
-| Parameter        | Range     | Description                       |
-| ---------------- | --------- | --------------------------------- |
-| `grainIntensity` | 0.0 - 1.0 | Film grain texture amount         |
-| `warmth`         | 0.0 - 1.0 | Color temperature (0.5 = neutral) |
-| `contrast`       | 0.0 - 1.0 | S-curve contrast intensity        |
-| `vignette`       | 0.0 - 1.0 | Edge darkening amount             |
-| `fade`           | 0.0 - 1.0 | Black lift for faded look         |
-| `halation`       | 0.0 - 1.0 | Red-orange glow around lights     |
-| `bloom`          | 0.0 - 1.0 | Soft color-preserving glow        |
-| `saturation`     | 0.0 - 2.0 | 0=B&W, 1=normal, >1=oversaturated |
