@@ -3,8 +3,8 @@
 import {
   Button,
   H1,
-  Input,
   Label,
+  LegalInput,
   NativeSelect,
   NativeSelectOption,
   ThemeToggle,
@@ -25,7 +25,7 @@ const PARAMETER_CONFIG: Array<{
   { key: 'grainIntensity', label: 'grain', min: 0, max: 1, step: 0.01 },
   { key: 'warmth', label: 'warmth', min: 0, max: 1, step: 0.01 },
   { key: 'saturation', label: 'saturation', min: 0, max: 2, step: 0.01 },
-  { key: 'exposure', label: 'exposure', min: 0.1, max: 3, step: 0.01 },
+  { key: 'exposure', label: 'exposure', min: 0, max: 3, step: 0.01 },
   { key: 'vignette', label: 'vignette', min: 0, max: 1, step: 0.01 },
   { key: 'fade', label: 'fade', min: 0, max: 1, step: 0.01 },
   { key: 'contrast', label: 'contrast', min: 0, max: 1, step: 0.01 },
@@ -79,14 +79,14 @@ export const Footer = ({
           {PARAMETER_CONFIG.map(({ key, label, min, max, step }) => (
             <div key={key} className="flex items-center gap-2">
               <Label htmlFor={key}>{label}</Label>
-              <Input
-                id={key}
-                type="number"
+              <LegalInput
+                key={key}
+                paramKey={key}
                 step={step}
                 min={min}
                 max={max}
                 value={parameters[key]}
-                onChange={e => handleParameterChange(key, e.target.value)}
+                setValue={handleParameterChange}
               />
             </div>
           ))}
