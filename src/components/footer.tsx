@@ -8,10 +8,13 @@ import {
   NativeSelect,
   NativeSelectOption,
   ThemeToggle,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
 } from '@/components';
 import { useEditor } from '@/contexts';
 import { FILM_PRESETS, FilmParameters, FilmPresetName } from '@/utils';
-import { DownloadSimpleIcon } from '@phosphor-icons/react/dist/ssr';
+import { ArrowClockwiseIcon, DownloadSimpleIcon } from '@phosphor-icons/react';
 
 const PRESET_OPTIONS = Object.keys(FILM_PRESETS) as FilmPresetName[];
 
@@ -43,8 +46,15 @@ export const Footer = ({
     updateParameter,
     currentPreset,
     applyPreset,
+    resetParameters,
     downloadImage,
   } = useEditor();
+
+  const isDefaultCustom =
+    currentPreset === 'custom' &&
+    (Object.keys(FILM_PRESETS.custom) as (keyof FilmParameters)[]).every(
+      key => parameters[key] === FILM_PRESETS.custom[key],
+    );
 
   const handlePresetChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     applyPreset(event.target.value as FilmPresetName);
@@ -90,10 +100,28 @@ export const Footer = ({
               />
             </div>
           ))}
-          <Button size="icon-sm" onClick={downloadImage}>
-            <span className="sr-only">Download</span>
-            <DownloadSimpleIcon />
-          </Button>
+          <Tooltip delayDuration={700}>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon-sm"
+                disabled={isDefaultCustom}
+                onClick={resetParameters}
+              >
+                <span className="sr-only">Reset Options</span>
+                <ArrowClockwiseIcon />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">Reset Options</TooltipContent>
+          </Tooltip>
+          <Tooltip delayDuration={700}>
+            <TooltipTrigger asChild>
+              <Button size="icon-sm" onClick={downloadImage}>
+                <span className="sr-only">Download</span>
+                <DownloadSimpleIcon />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">Download</TooltipContent>
+          </Tooltip>
         </div>
       )}
     </footer>

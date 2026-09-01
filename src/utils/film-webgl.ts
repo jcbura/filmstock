@@ -22,7 +22,7 @@ export type FilmPresetName =
 
 export const FILM_PRESETS: Record<FilmPresetName, FilmParameters> = {
   custom: {
-    grainIntensity: 0.15,
+    grainIntensity: 0.1,
     warmth: 0.5,
     contrast: 0.0,
     vignette: 0.0,
@@ -30,84 +30,104 @@ export const FILM_PRESETS: Record<FilmPresetName, FilmParameters> = {
     halation: 0.0,
     bloom: 0.0,
     saturation: 1.0,
-    exposure: 0.9,
+    exposure: 1.0,
   },
+  // Fine grain, warm but gentle skin tones, low contrast with a soft
+  // shoulder, and a slightly airy/overexposed feel - Portra's signature.
   'kodak-portra': {
     grainIntensity: 0.08,
+    warmth: 0.58,
+    contrast: 0.15,
+    vignette: 0.08,
+    fade: 0.05,
+    halation: 0.05,
+    bloom: 0.05,
+    saturation: 0.95,
+    exposure: 1.05,
+  },
+  // Velvia is a punchy, highly saturated slide film: fine grain, high
+  // contrast, deep blacks (no fade), and a slightly cool/neutral cast
+  // that lets the saturation carry the look.
+  'fuji-velvia': {
+    grainIntensity: 0.08,
+    warmth: 0.48,
+    contrast: 0.45,
+    vignette: 0.15,
+    fade: 0.0,
+    halation: 0.05,
+    bloom: 0.08,
+    saturation: 1.4,
+    exposure: 1.0,
+  },
+  // CineStill 800T is tungsten-balanced (cooler baseline) and known
+  // above all for pronounced red halation around bright/point light
+  // sources, since it lacks a remjet anti-halation backing. Grainier
+  // than most color stocks and often shot at night.
+  'cinestill-800t': {
+    grainIntensity: 0.15,
+    warmth: 0.35,
+    contrast: 0.25,
+    vignette: 0.15,
+    fade: 0.1,
+    halation: 0.75,
+    bloom: 0.3,
+    saturation: 0.9,
+    exposure: 1.0,
+  },
+  // Kodak Gold is a warm, nostalgic consumer stock: noticeable grain,
+  // moderate contrast, a gentle vignette, and a bit of fade for that
+  // "old photo album" feel.
+  'kodak-gold': {
+    grainIntensity: 0.12,
     warmth: 0.62,
     contrast: 0.2,
-    vignette: 0.1,
-    fade: 0.3,
-    halation: 0.0,
-    bloom: 0.2,
-    saturation: 1.0,
-    exposure: 1,
-  },
-  'fuji-velvia': {
-    grainIntensity: 0.05,
-    warmth: 0.45, // Cooler, blue-green cast
-    contrast: 0.5, // High contrast, punchy
-    vignette: 0.2,
-    fade: 0.1, // Minimal fade, rich blacks
-    halation: 0.0,
-    bloom: 0.15,
-    saturation: 1.2, // Oversaturated for Velvia look
-    exposure: 1,
-  },
-  'cinestill-800t': {
-    grainIntensity: 0.2,
-    warmth: 0.55,
-    contrast: 0.3,
-    vignette: 0.3,
-    fade: 0.4,
-    halation: 0.8, // Heavy red halation - signature look
-    bloom: 0.5,
-    saturation: 1.0,
-    exposure: 1,
-  },
-  'kodak-gold': {
-    grainIntensity: 0.15,
-    warmth: 0.7, // Very warm, golden
-    contrast: 0.25,
-    vignette: 0.35,
-    fade: 0.6, // Heavy fade, vintage look
-    halation: 0.0,
-    bloom: 0.25,
-    saturation: 0.9,
-    exposure: 1,
-  },
-  'fuji-400h': {
-    grainIntensity: 0.1,
-    warmth: 0.48, // Slightly cool, green-blue shadows
-    contrast: 0.15, // Low contrast, soft
     vignette: 0.15,
-    fade: 0.4,
-    halation: 0.0,
-    bloom: 0.3,
-    saturation: 0.85, // Slightly desaturated, pastel look
-    exposure: 1,
+    fade: 0.12,
+    halation: 0.08,
+    bloom: 0.05,
+    saturation: 1.05,
+    exposure: 1.0,
   },
+  // Fuji 400H is prized for soft, low-contrast pastel tones with a
+  // slightly cool/green cast, fine grain, and gently desaturated color
+  // - a favorite for weddings and portraits.
+  'fuji-400h': {
+    grainIntensity: 0.08,
+    warmth: 0.45,
+    contrast: 0.1,
+    vignette: 0.05,
+    fade: 0.08,
+    halation: 0.03,
+    bloom: 0.05,
+    saturation: 0.85,
+    exposure: 1.05,
+  },
+  // Ilford HP5 Plus: classic, versatile black & white with moderate
+  // grain and contrast - saturation is zeroed out entirely.
   'ilford-hp5': {
-    grainIntensity: 0.18,
-    warmth: 0.5, // Neutral for B&W
-    contrast: 0.4, // Classic B&W contrast
-    vignette: 0.25,
-    fade: 0.2,
-    halation: 0.0,
-    bloom: 0.1,
-    saturation: 0.0, // Full B&W
-    exposure: 1,
+    grainIntensity: 0.12,
+    warmth: 0.5,
+    contrast: 0.3,
+    vignette: 0.15,
+    fade: 0.05,
+    halation: 0.02,
+    bloom: 0.05,
+    saturation: 0.0,
+    exposure: 1.0,
   },
+  // Kodak Tri-X: the classic gritty photojournalism stock - heavier,
+  // more pronounced grain and punchier contrast than HP5, with a touch
+  // of highlight bloom.
   'kodak-tri-x': {
-    grainIntensity: 0.22,
-    warmth: 0.5, // Neutral for B&W
-    contrast: 0.45, // High contrast, gritty
-    vignette: 0.3,
-    fade: 0.15,
-    halation: 0.0,
-    bloom: 0.0,
-    saturation: 0.0, // Full B&W
-    exposure: 1,
+    grainIntensity: 0.15,
+    warmth: 0.5,
+    contrast: 0.4,
+    vignette: 0.2,
+    fade: 0.03,
+    halation: 0.02,
+    bloom: 0.08,
+    saturation: 0.0,
+    exposure: 1.0,
   },
 };
 
@@ -242,7 +262,8 @@ export function applyFilmShader(
         vec2 texelSize = 1.0 / u_resolution;
         vec3 glow = vec3(0.0);
         float totalBrightness = 0.0;
-        
+        const float halationSamples = 49.0; // 7x7 kernel below
+
         // Sample in a small radius around current pixel
         // Using constant loop bounds (WebGL requirement)
         for (int x = -3; x <= 3; x++) {
@@ -261,10 +282,14 @@ export function applyFilmShader(
             }
           }
         }
-        
+        // Average over the kernel so glow intensity doesn't scale with
+        // sample count, then cap it — otherwise large bright regions can
+        // sum well past 1.0 and blow out highlights regardless of u_halation.
+        totalBrightness = min(totalBrightness / halationSamples * 8.0, 1.0);
+
         // Create red-orange halation glow
         if (totalBrightness > 0.0) {
-          glow = vec3(1.0, 0.3, 0.1) * totalBrightness * u_halation * 0.3;
+          glow = vec3(1.0, 0.3, 0.1) * totalBrightness * u_halation * 0.4;
           color.rgb += glow;
         }
       }
@@ -273,7 +298,8 @@ export function applyFilmShader(
       if (u_bloom > 0.0) {
         vec2 texelSize = 1.0 / u_resolution;
         vec3 bloomGlow = vec3(0.0);
-        
+        const float bloomSamples = 81.0; // 9x9 kernel below
+
         // Sample in a slightly larger radius for softer bloom
         for (int x = -4; x <= 4; x++) {
           for (int y = -4; y <= 4; y++) {
@@ -292,10 +318,16 @@ export function applyFilmShader(
             }
           }
         }
-        
+        // Average over the kernel for the same reason as halation above.
+        bloomGlow = min(bloomGlow / bloomSamples * 10.0, vec3(1.0));
+
         // Add soft color-preserving bloom
-        color.rgb += bloomGlow * u_bloom * 0.15;
+        color.rgb += bloomGlow * u_bloom * 0.18;
       }
+
+      // Clamp before exposure/contrast/saturation so the unbounded glow
+      // effects above can't distort the S-curve or blow past white.
+      color.rgb = clamp(color.rgb, 0.0, 1.0);
       
       // Apply exposure
       color.rgb *= u_exposure;
@@ -322,9 +354,14 @@ export function applyFilmShader(
       color.b *= 1.0 - warmthShift;
       
       // Apply fade (lift blacks) - characteristic of film
-      // Prevents pure black, adds that faded vintage look
+      // True black-point lift: output = input * (1 - lift) + lift.
+      // This raises the floor so pure black becomes a milky gray while
+      // highlights (input = 1.0) stay anchored at 1.0 — the flat, hazy
+      // shadow look of faded film, rather than a uniform brightness boost
+      // that would also wash out the highlights.
       if (u_fade > 0.0) {
-        color.rgb = mix(color.rgb, color.rgb + vec3(u_fade * 0.15), u_fade);
+        float liftAmount = u_fade * 0.12; // max black-point lift
+        color.rgb = color.rgb * (1.0 - liftAmount) + vec3(liftAmount);
       }
       
       // Apply vignette (darkening at edges)
@@ -341,9 +378,17 @@ export function applyFilmShader(
       }
       
       // Add grain with dynamic intensity
-      float grain = random(v_texCoord * u_time) * u_grainIntensity;
+      // random() returns [0,1) — remap to [-1,1) so grain is noise around
+      // the original value instead of a one-directional brightness lift,
+      // which was the main source of the overall overexposed look.
+      float grain = (random(v_texCoord * u_time) - 0.5) * 2.0 * u_grainIntensity;
       color.rgb += grain;
       
+      // Final clamp - warmth shift and grain above can still push channels
+      // out of [0,1]; without this they'd get hard-clipped unevenly per
+      // channel by the framebuffer instead of a clean, intentional clamp.
+      color.rgb = clamp(color.rgb, 0.0, 1.0);
+
       gl_FragColor = color;
     }
   `;

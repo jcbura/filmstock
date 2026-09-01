@@ -2,7 +2,7 @@
 
 import { Input } from '@/components';
 import { FilmParameters } from '@/utils';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface Props {
   paramKey: keyof FilmParameters;
@@ -22,6 +22,10 @@ export const LegalInput = ({
   setValue,
 }: Props) => {
   const [input, setInput] = useState(String(value));
+
+  useEffect(() => {
+    setInput(String(value));
+  }, [value]);
 
   return (
     <Input
