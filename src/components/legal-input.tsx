@@ -25,6 +25,7 @@ export const LegalInput = ({
 
   return (
     <Input
+      id={paramKey}
       type="number"
       step={step}
       min={min}
